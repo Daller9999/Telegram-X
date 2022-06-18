@@ -1847,9 +1847,10 @@ public class Tdlib implements TdlibProvider, Settings.SettingsChangeListener {
 
     public void getAvailableReactions(long chatId, long messageId, RunnableData<TdApi.AvailableReactions> callBack) {
         TdApi.GetMessageAvailableReactions getMessageAvailableReactions = new TdApi.GetMessageAvailableReactions(chatId, messageId);
-        this.client().send(getMessageAvailableReactions, object -> {
-            TdApi.AvailableReactions availableReactions = (TdApi.AvailableReactions) object;
-            callBack.runWithData(availableReactions);
+        client().send(getMessageAvailableReactions, object -> {
+            if (object instanceof TdApi.AvailableReactions) {
+                callBack.runWithData((TdApi.AvailableReactions) object);
+            }
         });
     }
 

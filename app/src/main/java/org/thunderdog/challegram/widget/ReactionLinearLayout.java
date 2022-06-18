@@ -3,17 +3,20 @@ package org.thunderdog.challegram.widget;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import org.drinkless.td.libcore.telegram.Client;
 import org.drinkless.td.libcore.telegram.TdApi;
 import org.thunderdog.challegram.component.sticker.StickerSmallView;
 import org.thunderdog.challegram.component.sticker.TGStickerObj;
+import org.thunderdog.challegram.core.Background;
+import org.thunderdog.challegram.data.TGMessage;
 import org.thunderdog.challegram.support.RippleSupport;
 import org.thunderdog.challegram.telegram.Tdlib;
 import org.thunderdog.challegram.tool.Screen;
@@ -22,19 +25,22 @@ import java.util.ArrayList;
 
 public class ReactionLinearLayout extends HorizontalScrollView {
 
-    private ArrayList<TdApi.Reaction> totalReactions = new ArrayList<>();
+    private final ArrayList<TdApi.Reaction> totalReactions = new ArrayList<>();
     private Tdlib tdlib;
     private LinearLayout linearLayout;
+    private TGMessage message;
 
-    public ReactionLinearLayout(Context context, Tdlib tdlib, String[] availableReactions, int color) {
+    public ReactionLinearLayout(Context context, TGMessage message, Tdlib tdlib, String[] availableReactions) {
         super(context);
+        this.tdlib = tdlib;
+        this.message = message;
+
         linearLayout = new LinearLayout(getContext());
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
         linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, Screen.dp(54f)));
-//        setBackgroundColor(color);
         RippleSupport.setSimpleWhiteBackground(this);
         addView(linearLayout);
-        this.tdlib = tdlib;
+
         sortReaction(tdlib.getSupportedReactions(), availableReactions);
         initReactionList();
         setHorizontalScrollBarEnabled(false);
@@ -44,21 +50,44 @@ public class ReactionLinearLayout extends HorizontalScrollView {
         totalReactions.clear();
         for (String reaction : availableReactions) {
             for (TdApi.Reaction reactionCurrent : reactions) {
-                if (reactionCurrent.reaction.equals(reaction)) {
-                    totalReactions.add(reactionCurrent);
-                    break;
+                if (reactionCurrent.isActive) {
+                    if (reactionCurrent.reaction.equals(reaction)) {
+                        totalReactions.add(reactionCurrent);
+                        break;
+                    }
                 }
             }
         }
     }
 
     private void initReactionList() {
+        ArrayList<StickerSmallView> stickerSmallViewList = new ArrayList<>();
         for (TdApi.Reaction reaction : totalReactions) {
             StickerSmallView stickerSmallView = new StickerSmallView(getContext());
             stickerSmallView.setSticker(new TGStickerObj(tdlib, reaction.activateAnimation, "", reaction.activateAnimation.type));
             stickerSmallView.setLayoutParams(new LinearLayout.LayoutParams(Screen.dp(54f), Screen.dp(54f)));
+            stickerSmallViewList.add(stickerSmallView);
             linearLayout.addView(stickerSmallView);
+            stickerSmallView.setStickerPressEvent(() -> onStickerClickListener(reaction));
         }
+        Background.instance().post(() -> {
+            for (StickerSmallView view : stickerSmallViewList) {
+                view.setAnimation(false);
+            }
+        }, 2000);
+    }
+
+    private void onStickerClickListener(TdApi.Reaction reaction) {
+        TdApi.SetMessageReaction messageReaction = new TdApi.SetMessageReaction();
+        TdApi.Message message = this.message.getMessage();
+        messageReaction.reaction = reaction.reaction;
+        messageReaction.messageId = message.id;
+        messageReaction.chatId = message.chatId;
+        messageReaction.isBig = false;
+        tdlib.client().send(messageReaction, object -> {
+            int a = 5;
+            int b = a + 5;
+        });
     }
 
     public ReactionLinearLayout(Context context, @Nullable AttributeSet attrs) {

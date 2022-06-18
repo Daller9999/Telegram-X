@@ -469,6 +469,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
     private boolean onMessageClickImpl(float x, float y, @Nullable TdApi.ChatMember sender) {
         MessagesController m = msg.messagesController();
         boolean isSent = !msg.isNotSent();
+        m.setMessage(msg);
 
         if (msg.isEventLog()) {
             showEventLogOptions(m, msg);

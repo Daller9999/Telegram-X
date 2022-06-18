@@ -70,6 +70,7 @@ import org.thunderdog.challegram.config.Config;
 import org.thunderdog.challegram.core.Background;
 import org.thunderdog.challegram.core.Lang;
 import org.thunderdog.challegram.data.TD;
+import org.thunderdog.challegram.data.TGMessage;
 import org.thunderdog.challegram.support.RippleSupport;
 import org.thunderdog.challegram.support.ViewSupport;
 import org.thunderdog.challegram.telegram.Tdlib;
@@ -183,6 +184,11 @@ public abstract class ViewController<T> implements Future<View>, ThemeChangeList
     protected @Nullable HeaderView headerView;
     protected @Nullable FloatingButton floatingButton;
     protected @Nullable NavigationController navigationController;
+    private TGMessage message;
+
+    public void setMessage(TGMessage message) {
+        this.message = message;
+    }
 
     public ViewController (@NonNull Context context, Tdlib tdlib) {
         this.context = UI.getContext(context);
@@ -2334,7 +2340,7 @@ public abstract class ViewController<T> implements Future<View>, ThemeChangeList
         optionsWrap.setLayoutParams(FrameLayoutFix.newParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM));
 
         if (reactions != null && reactions.length > 0) {
-            ReactionLinearLayout reactionLinearLayout = new ReactionLinearLayout(context, tdlib, reactions, getRootColorId());
+            ReactionLinearLayout reactionLinearLayout = new ReactionLinearLayout(context, message, tdlib, reactions);
             reactionLinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Screen.dp(54f)));
             optionsWrap.addView(reactionLinearLayout);
         }

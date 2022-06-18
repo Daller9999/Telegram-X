@@ -17,7 +17,6 @@ package org.thunderdog.challegram.component.chat;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Build;
-import android.util.Log;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,7 +28,6 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.drinkless.td.libcore.telegram.TdApi;
-import org.thunderdog.challegram.LoggerHelper;
 import org.thunderdog.challegram.R;
 import org.thunderdog.challegram.config.Config;
 import org.thunderdog.challegram.core.Lang;
@@ -66,8 +64,6 @@ import org.thunderdog.challegram.util.StringList;
 import org.thunderdog.challegram.v.MessagesRecyclerView;
 import org.thunderdog.challegram.widget.SparseDrawableView;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import me.vkryl.android.AnimatorUtils;
@@ -106,7 +102,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
     private MessagesManager manager;
     private String[] availableReactions;
 
-    public MessageView (Context context) {
+    public MessageView(Context context) {
         super(context);
         avatarReceiver = new ImageReceiver(this, Screen.dp(20.5f));
         gifReceiver = new GifReceiver(this);
@@ -117,29 +113,29 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
         }
     }
 
-    public void setManager (MessagesManager manager) {
+    public void setManager(MessagesManager manager) {
         this.manager = manager;
     }
 
-    public void setParentMessageViewGroup (MessageViewGroup parentViewGroup) {
+    public void setParentMessageViewGroup(MessageViewGroup parentViewGroup) {
         this.parentMessageViewGroup = parentViewGroup;
     }
 
-    public MessageViewGroup getParentMessageViewGroup () {
+    public MessageViewGroup getParentMessageViewGroup() {
         return parentMessageViewGroup;
     }
 
-    public void setCustomMeasureDisabled (boolean disabled) {
+    public void setCustomMeasureDisabled(boolean disabled) {
         this.flags = BitwiseUtils.setFlag(this.flags, FLAG_DISABLE_MEASURE, disabled);
     }
 
     @Override
-    public void performDestroy () {
+    public void performDestroy() {
         destroy();
     }
 
-    public void destroy () {
-        if (avatarReceiver != null){
+    public void destroy() {
+        if (avatarReceiver != null) {
             avatarReceiver.destroy();
         }
         if (contentReceiver != null) {
@@ -162,7 +158,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
         }
     }
 
-    public void setUseReceivers () {
+    public void setUseReceivers() {
         contentReceiver = new ImageReceiver(this, 1);
         contentReceiver.setRadius(0);
         previewReceiver = new DoubleImageReceiver(this, 1);
@@ -170,30 +166,30 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
         flags |= FLAG_USE_COMMON_RECEIVER;
     }
 
-    public void setUseComplexReceiver () {
+    public void setUseComplexReceiver() {
         complexReceiver = new ComplexReceiver(this);
         flags |= FLAG_USE_COMPLEX_RECEIVER;
     }
 
-    public void setUseReplyReceiver () {
+    public void setUseReplyReceiver() {
         //noinspection ContantConditions
         replyReceiver = new DoubleImageReceiver(this, Config.USE_SCALED_ROUNDINGS ? Screen.dp(Theme.getImageRadius()) : 0);
         flags |= FLAG_USE_REPLY_RECEIVER;
     }
 
-    public void invalidateReplyReceiver (long chatId, long messageId) {
+    public void invalidateReplyReceiver(long chatId, long messageId) {
         if ((flags * FLAG_USE_REPLY_RECEIVER) != 0 && msg != null && msg.getChatId() == chatId && msg.getId() == messageId) {
             msg.requestReply(replyReceiver);
         }
     }
 
-    public void invalidateReplyReceiver () {
+    public void invalidateReplyReceiver() {
         if ((flags & FLAG_USE_REPLY_RECEIVER) != 0 && msg != null) {
             msg.requestReply(replyReceiver);
         }
     }
 
-    private void checkLegacyComponents (MessageView view) {
+    private void checkLegacyComponents(MessageView view) {
         if (msg != null) {
             msg.layoutAvatar(view, avatarReceiver);
             if ((flags & FLAG_USE_REPLY_RECEIVER) != 0) {
@@ -205,19 +201,19 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
     // message
 
     @Override
-    public TGMessage getMessage () {
+    public TGMessage getMessage() {
         return msg;
     }
 
-    public final long getMessageId () {
+    public final long getMessageId() {
         return msg != null ? msg.getId() : 0;
     }
 
-    public final int getCurrentHeight () {
+    public final int getCurrentHeight() {
         return msg != null ? msg.getHeight() : 0;
     }
 
-    public void setMessage (TGMessage message) {
+    public void setMessage(TGMessage message) {
         int desiredHeight = message.getHeight();
         int currentHeight = getCurrentHeight();
 
@@ -269,23 +265,16 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
             tdlib.getAvailableReactions(messageCurrent.chatId, messageCurrent.id, arg -> {
                 availableReactions = arg.reactions;
             });
-            TdApi.Reaction[] reactions = tdlib.getSupportedReactions();
-            if (reactions == null) {
-                LoggerHelper.log("reactions is null");
-            } else {
-                String str = "reactions size is " + reactions.length;
-                LoggerHelper.log(str);
-            }
         }
     }
 
-    public void invalidatePreviewReceiver (long chatId, long messageId) {
+    public void invalidatePreviewReceiver(long chatId, long messageId) {
         if (msg != null && chatId == msg.getChatId() && messageId == msg.getId() && previewReceiver != null) {
             msg.requestPreview(previewReceiver);
         }
     }
 
-    public void invalidateContentReceiver (long chatId, long messageId, int arg) {
+    public void invalidateContentReceiver(long chatId, long messageId, int arg) {
         if (msg != null && chatId == msg.getChatId()) {
             if ((flags & FLAG_USE_COMPLEX_RECEIVER) != 0) {
                 if (msg.isDescendantOrSelf(messageId)) {
@@ -311,7 +300,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
     }
 
     @Override
-    protected void onMeasure (int widthMeasureSpec, int heightMeasureSpec) {
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         if ((flags & FLAG_DISABLE_MEASURE) != 0) {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         } else {
@@ -324,7 +313,8 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
         checkLegacyComponents(this);
     }
 
-    public final @Nullable MessagesRecyclerView findParentRecyclerView () {
+    public final @Nullable
+    MessagesRecyclerView findParentRecyclerView() {
         ViewParent parent = getParent();
         while (parent != null) {
             if (parent instanceof MessagesRecyclerView) {
@@ -335,7 +325,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
         return null;
     }
 
-    public final View findTargetView () {
+    public final View findTargetView() {
         View target = this;
         ViewParent parent = target.getParent();
         while (parent != null) {
@@ -349,37 +339,37 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
     }
 
     @Override
-    public void onDraw (Canvas c) {
+    public void onDraw(Canvas c) {
         msg.draw(this, c, avatarReceiver, replyReceiver, previewReceiver, contentReceiver, gifReceiver, complexReceiver);
     }
 
-    public ImageReceiver getAvatarReceiver () {
+    public ImageReceiver getAvatarReceiver() {
         return avatarReceiver;
     }
 
-    public ImageReceiver getContentReceiver () {
+    public ImageReceiver getContentReceiver() {
         return contentReceiver;
     }
 
-    public Receiver getAnyReceiver () {
+    public Receiver getAnyReceiver() {
         return contentReceiver != null ? contentReceiver : gifReceiver;
     }
 
-    public GifReceiver getGifReceiver () {
+    public GifReceiver getGifReceiver() {
         return gifReceiver;
     }
 
-    public ComplexReceiver getComplexReceiver () {
+    public ComplexReceiver getComplexReceiver() {
         return complexReceiver;
     }
 
-    public DoubleImageReceiver getPreviewReceiver () {
+    public DoubleImageReceiver getPreviewReceiver() {
         return previewReceiver;
     }
 
     private boolean isAttached = true;
 
-    public void onAttachedToRecyclerView () {
+    public void onAttachedToRecyclerView() {
         if (!isAttached) {
             isAttached = true;
             avatarReceiver.attach();
@@ -397,7 +387,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
         }
     }
 
-    public void onDetachedFromRecyclerView () {
+    public void onDetachedFromRecyclerView() {
         if (isAttached) {
             isAttached = false;
             avatarReceiver.detach();
@@ -417,7 +407,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
 
     private float touchX, touchY;
 
-    private static void selectMessage (MessagesController m, TGMessage msg, float touchX, float touchY) {
+    private static void selectMessage(MessagesController m, TGMessage msg, float touchX, float touchY) {
         long messageId = msg.findMessageIdUnder(touchX, touchY);
         if (messageId == 0) {
             m.selectAllMessages(msg, touchX, touchY);
@@ -426,7 +416,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
         }
     }
 
-    private boolean onMessageClick (float x, float y) {
+    private boolean onMessageClick(float x, float y) {
         if (msg == null || msg instanceof TGMessageBotInfo) {
             return false;
         }
@@ -476,7 +466,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
         return onMessageClickImpl(x, y, null);
     }
 
-    private boolean onMessageClickImpl (float x, float y, @Nullable TdApi.ChatMember sender) {
+    private boolean onMessageClickImpl(float x, float y, @Nullable TdApi.ChatMember sender) {
         MessagesController m = msg.messagesController();
         boolean isSent = !msg.isNotSent();
 
@@ -489,7 +479,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
             if (isSent) {
                 return showChatOptions(m, (TGMessageChat) msg, sender);
             } else {
-                m.showMessageOptions(msg, new int[] {R.id.btn_messageDelete}, new String[] {Lang.getString(R.string.Delete)}, new int[] {R.drawable.baseline_delete_24}, null, sender, true);
+                m.showMessageOptions(msg, new int[]{R.id.btn_messageDelete}, new String[]{Lang.getString(R.string.Delete)}, new int[]{R.drawable.baseline_delete_24}, null, sender, true);
                 return true;
             }
         }
@@ -505,7 +495,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
         return false;
     }
 
-    public static Object fillMessageOptions (MessagesController m, TGMessage msg, @Nullable TdApi.ChatMember sender, IntList ids, IntList icons, StringList strings, boolean isMore) {
+    public static Object fillMessageOptions(MessagesController m, TGMessage msg, @Nullable TdApi.ChatMember sender, IntList ids, IntList icons, StringList strings, boolean isMore) {
         TdApi.Message newestMessage = msg.getNewestMessage();
         TdApi.MessageContent content = newestMessage.content;
         int messageCount = msg.getMessageCount();
@@ -1003,7 +993,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
     }
 
     @Deprecated
-    private boolean showChatOptions (MessagesController m, TGMessageChat msg, TdApi.ChatMember messageSender) {
+    private boolean showChatOptions(MessagesController m, TGMessageChat msg, TdApi.ChatMember messageSender) {
         if (msg.getMessage() != null) {
             TdApi.MessageContent content = msg.getMessage().content;
             if (content != null) {
@@ -1064,7 +1054,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
         return true;
     }
 
-    private void showEventLogRestrict (MessagesController m, boolean isRestrict, TdApi.MessageSender sender, TdApi.ChatMemberStatus myStatus, TdApi.ChatMember member) {
+    private void showEventLogRestrict(MessagesController m, boolean isRestrict, TdApi.MessageSender sender, TdApi.ChatMemberStatus myStatus, TdApi.ChatMember member) {
         if (isRestrict && TD.canRestrictMember(myStatus, member.status) == TD.RESTRICT_MODE_NEW) {
             member = null;
         }
@@ -1074,7 +1064,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
         m.navigateTo(c);
     }
 
-    private void showEventLogOptions (MessagesController m, TGMessage msg) {
+    private void showEventLogOptions(MessagesController m, TGMessage msg) {
         TdApi.MessageSender sender = msg.getMessage().senderId;
 
         IntList ids = new IntList(2);
@@ -1198,7 +1188,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
         });
     }
 
-    private void setLongPressed (boolean longPressed) {
+    private void setLongPressed(boolean longPressed) {
         if (longPressed) {
             flags |= FLAG_LONG_PRESSED;
             ViewParent parent = getParent();
@@ -1215,7 +1205,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
         }
     }
 
-    private boolean performLongPress () {
+    private boolean performLongPress() {
         if (msg instanceof TGMessageBotInfo || msg.isNotSent()) {
             return false;
         }
@@ -1234,7 +1224,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
         return false;
     }
 
-    public void shake (boolean isPositive) {
+    public void shake(boolean isPositive) {
         if (msg == null) {
             return;
         }
@@ -1283,7 +1273,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
         animator.animateTo(1f);
     }
 
-    private void onLongPress () {
+    private void onLongPress() {
         if ((flags & FLAG_CAUGHT_CLICK) != 0) {
             if (performLongPress()) {
                 flags &= ~FLAG_CAUGHT_CLICK;
@@ -1299,14 +1289,14 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
 
     private CancellableRunnable longPressRunnable;
 
-    private void postLongPress () {
+    private void postLongPress() {
         if ((flags & FLAG_WILL_CALL_LONG_PRESS) != 0) {
             return;
         }
         flags |= FLAG_WILL_CALL_LONG_PRESS;
         longPressRunnable = new CancellableRunnable() {
             @Override
-            public void act () {
+            public void act() {
                 flags &= ~FLAG_WILL_CALL_LONG_PRESS;
                 longPressRunnable = null;
                 onLongPress();
@@ -1316,7 +1306,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
         postDelayed(longPressRunnable, ViewConfiguration.getLongPressTimeout());
     }
 
-    private void preventLongPress () {
+    private void preventLongPress() {
         flags &= ~FLAG_WILL_CALL_LONG_PRESS;
         if (longPressRunnable != null) {
             longPressRunnable.cancel();
@@ -1325,7 +1315,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
         }
     }
 
-    private boolean startSwipeIfNeeded (float diffX) {
+    private boolean startSwipeIfNeeded(float diffX) {
         if (msg == null || msg.isNotSent() || msg instanceof TGMessageBotInfo || msg instanceof TGMessageChat || msg.isSponsored() || UI.getContext(getContext()).getRecordAudioVideoController().isOpen()) {
             return false;
         }
@@ -1357,7 +1347,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
     }
 
     @Override
-    public boolean onTouchEvent (MotionEvent e) {
+    public boolean onTouchEvent(MotionEvent e) {
         if (msg == null) {
             return false;
         }

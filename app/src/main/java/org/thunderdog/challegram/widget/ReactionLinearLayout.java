@@ -14,6 +14,7 @@ import androidx.annotation.RequiresApi;
 import org.drinkless.td.libcore.telegram.TdApi;
 import org.thunderdog.challegram.component.sticker.StickerSmallView;
 import org.thunderdog.challegram.component.sticker.TGStickerObj;
+import org.thunderdog.challegram.support.RippleSupport;
 import org.thunderdog.challegram.telegram.Tdlib;
 import org.thunderdog.challegram.tool.Screen;
 
@@ -25,11 +26,13 @@ public class ReactionLinearLayout extends HorizontalScrollView {
     private Tdlib tdlib;
     private LinearLayout linearLayout;
 
-    public ReactionLinearLayout(Context context, Tdlib tdlib, String[] availableReactions) {
+    public ReactionLinearLayout(Context context, Tdlib tdlib, String[] availableReactions, int color) {
         super(context);
         linearLayout = new LinearLayout(getContext());
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
         linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, Screen.dp(54f)));
+//        setBackgroundColor(color);
+        RippleSupport.setSimpleWhiteBackground(this);
         addView(linearLayout);
         this.tdlib = tdlib;
         sortReaction(tdlib.getSupportedReactions(), availableReactions);

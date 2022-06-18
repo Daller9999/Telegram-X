@@ -2334,9 +2334,8 @@ public abstract class ViewController<T> implements Future<View>, ThemeChangeList
         optionsWrap.setLayoutParams(FrameLayoutFix.newParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM));
 
         if (reactions != null && reactions.length > 0) {
-            ReactionLinearLayout reactionLinearLayout = new ReactionLinearLayout(context, tdlib, reactions);
+            ReactionLinearLayout reactionLinearLayout = new ReactionLinearLayout(context, tdlib, reactions, getRootColorId());
             reactionLinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Screen.dp(54f)));
-            reactionLinearLayout.setBackgroundColor(ContextCompat.getColor(context, R.color.navigation_bar));
             optionsWrap.addView(reactionLinearLayout);
         }
 

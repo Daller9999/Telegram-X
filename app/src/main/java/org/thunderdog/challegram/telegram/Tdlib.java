@@ -1854,6 +1854,28 @@ public class Tdlib implements TdlibProvider, Settings.SettingsChangeListener {
         });
     }
 
+    public void getMessageReactions(TdApi.Message message, RunnableData<String[]> callBack) {
+        TdApi.GetMessageAddedReactions getMessageAddedReactions = new TdApi.GetMessageAddedReactions();
+        getMessageAddedReactions.chatId = message.chatId;
+        getMessageAddedReactions.messageId = message.id;
+        getMessageAddedReactions.limit = 100;
+        getMessageAddedReactions.offset = "";
+        tdlib().client().send(getMessageAddedReactions, object -> {
+            if (object instanceof TdApi.AddedReactions) {
+                TdApi.AddedReactions data = (TdApi.AddedReactions) object;
+                if (data.reactions.length > 0) {
+                    String[] reactions = new String[data.reactions.length];
+                    int i = 0;
+                    for (TdApi.AddedReaction reaction : data.reactions) {
+                        reactions[i] = reaction.reaction;
+                        i++;
+                    }
+                    callBack.runWithData(reactions);
+                }
+            }
+        });
+    }
+
     public void getAlbum(List<TdApi.Message> album, boolean onlyLocal, @Nullable Album prevAlbum, @Nullable RunnableData<Album> callback) {
         TdApi.Message newestMessage = album.get(0);
         TdApi.Message oldestMessage = album.get(album.size() - 1);

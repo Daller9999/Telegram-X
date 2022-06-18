@@ -17,6 +17,7 @@ package org.thunderdog.challegram.component.chat;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Build;
+import android.os.Handler;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,7 +28,10 @@ import android.view.ViewParent;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.exoplayer2.util.Log;
+
 import org.drinkless.td.libcore.telegram.TdApi;
+import org.thunderdog.challegram.LoggerHelper;
 import org.thunderdog.challegram.R;
 import org.thunderdog.challegram.config.Config;
 import org.thunderdog.challegram.core.Lang;
@@ -100,6 +104,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
     private ComplexReceiver complexReceiver;
     private MessageViewGroup parentMessageViewGroup;
     private MessagesManager manager;
+    public String[] reactions = null;
     private String[] availableReactions;
 
     public MessageView(Context context) {
@@ -265,8 +270,14 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
             tdlib.getAvailableReactions(messageCurrent.chatId, messageCurrent.id, arg -> {
                 availableReactions = arg.reactions;
             });
+            tdlib.getMessageReactions(messageCurrent, arg -> {
+                reactions = arg;
+                handler.post(this::requestLayout);
+            });
         }
     }
+
+    private final Handler handler = new Handler();
 
     public void invalidatePreviewReceiver(long chatId, long messageId) {
         if (msg != null && chatId == msg.getChatId() && messageId == msg.getId() && previewReceiver != null) {
@@ -301,14 +312,18 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int add = 0;
+        if (reactions != null && reactions.length > 0) {
+            add = Screen.dp(10 * reactions.length);
+        }
         if ((flags & FLAG_DISABLE_MEASURE) != 0) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            super.onMeasure(widthMeasureSpec + add, heightMeasureSpec);
         } else {
             int width = ((View) getParent()).getMeasuredWidth();
             if (msg != null) {
-                msg.buildLayout(width);
+                msg.buildLayout(width + add);
             }
-            setMeasuredDimension(widthMeasureSpec, MeasureSpec.makeMeasureSpec(getCurrentHeight(), MeasureSpec.EXACTLY));
+            setMeasuredDimension(widthMeasureSpec + add, MeasureSpec.makeMeasureSpec(getCurrentHeight(), MeasureSpec.EXACTLY));
         }
         checkLegacyComponents(this);
     }

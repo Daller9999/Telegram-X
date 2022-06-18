@@ -29,6 +29,7 @@ task<me.vkryl.task.CheckEmojiKeyboardTask>("checkEmojiKeyboard") {
 }
 
 android {
+    namespace = "org.thunderdog.challegram"
     defaultConfig {
         val properties = extra["properties"] as Properties
 

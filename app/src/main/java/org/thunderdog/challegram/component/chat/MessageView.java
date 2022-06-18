@@ -66,6 +66,7 @@ import org.thunderdog.challegram.unsorted.Settings;
 import org.thunderdog.challegram.util.DrawableProvider;
 import org.thunderdog.challegram.util.StringList;
 import org.thunderdog.challegram.v.MessagesRecyclerView;
+import org.thunderdog.challegram.widget.ReactionLinearLayout;
 import org.thunderdog.challegram.widget.SparseDrawableView;
 
 import java.util.List;
@@ -104,7 +105,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
     private ComplexReceiver complexReceiver;
     private MessageViewGroup parentMessageViewGroup;
     private MessagesManager manager;
-    public String[] reactions = null;
+    public TdApi.Reaction[] reactions = null;
     private String[] availableReactions;
 
     public MessageView(Context context) {
@@ -314,7 +315,7 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int add = 0;
         if (reactions != null && reactions.length > 0) {
-            add = Screen.dp(10 * reactions.length);
+            add = Screen.dp(ReactionLinearLayout.REACTION_SIZE * reactions.length);
         }
         if ((flags & FLAG_DISABLE_MEASURE) != 0) {
             super.onMeasure(widthMeasureSpec + add, heightMeasureSpec);

@@ -72,6 +72,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -1854,7 +1855,7 @@ public class Tdlib implements TdlibProvider, Settings.SettingsChangeListener {
         });
     }
 
-    public void getMessageReactions(TdApi.Message message, RunnableData<String[]> callBack) {
+    public void getMessageReactions(TdApi.Message message, RunnableData<TdApi.Reaction[]> callBack) {
         TdApi.GetMessageAddedReactions getMessageAddedReactions = new TdApi.GetMessageAddedReactions();
         getMessageAddedReactions.chatId = message.chatId;
         getMessageAddedReactions.messageId = message.id;
@@ -1864,16 +1865,25 @@ public class Tdlib implements TdlibProvider, Settings.SettingsChangeListener {
             if (object instanceof TdApi.AddedReactions) {
                 TdApi.AddedReactions data = (TdApi.AddedReactions) object;
                 if (data.reactions.length > 0) {
-                    String[] reactions = new String[data.reactions.length];
+                    TdApi.Reaction[] reactions = new TdApi.Reaction[data.reactions.length];
                     int i = 0;
                     for (TdApi.AddedReaction reaction : data.reactions) {
-                        reactions[i] = reaction.reaction;
+                        reactions[i] = getReaction(reaction.reaction);
                         i++;
                     }
                     callBack.runWithData(reactions);
                 }
             }
         });
+    }
+
+    private TdApi.Reaction getReaction(String reaction) {
+        for (TdApi.Reaction reactionCurrent : getSupportedReactions()) {
+            if (Objects.equals(reactionCurrent.reaction, reaction)) {
+                return reactionCurrent;
+            }
+        }
+        return null;
     }
 
     public void getAlbum(List<TdApi.Message> album, boolean onlyLocal, @Nullable Album prevAlbum, @Nullable RunnableData<Album> callback) {

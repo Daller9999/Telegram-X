@@ -3,7 +3,6 @@ package org.thunderdog.challegram.widget;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
@@ -11,7 +10,6 @@ import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
-import org.drinkless.td.libcore.telegram.Client;
 import org.drinkless.td.libcore.telegram.TdApi;
 import org.thunderdog.challegram.component.sticker.StickerSmallView;
 import org.thunderdog.challegram.component.sticker.TGStickerObj;
@@ -24,6 +22,8 @@ import org.thunderdog.challegram.tool.Screen;
 import java.util.ArrayList;
 
 public class ReactionLinearLayout extends HorizontalScrollView {
+
+    public static final int REACTION_SIZE = 12;
 
     private final ArrayList<TdApi.Reaction> totalReactions = new ArrayList<>();
     private Tdlib tdlib;
@@ -85,8 +85,7 @@ public class ReactionLinearLayout extends HorizontalScrollView {
         messageReaction.chatId = message.chatId;
         messageReaction.isBig = false;
         tdlib.client().send(messageReaction, object -> {
-            int a = 5;
-            int b = a + 5;
+
         });
     }
 

@@ -14,6 +14,8 @@
  */
 package org.thunderdog.challegram.data;
 
+import static org.thunderdog.challegram.widget.ReactionLinearLayout.REACTION_SIZE;
+
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -34,6 +36,7 @@ import android.util.SparseIntArray;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.CallSuper;
@@ -59,6 +62,8 @@ import org.thunderdog.challegram.component.chat.MessageViewGroup;
 import org.thunderdog.challegram.component.chat.MessagesManager;
 import org.thunderdog.challegram.component.chat.MessagesTouchHelperCallback;
 import org.thunderdog.challegram.component.chat.ReplyComponent;
+import org.thunderdog.challegram.component.sticker.StickerSmallView;
+import org.thunderdog.challegram.component.sticker.TGStickerObj;
 import org.thunderdog.challegram.config.Config;
 import org.thunderdog.challegram.config.Device;
 import org.thunderdog.challegram.core.Lang;
@@ -230,7 +235,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     protected final Tdlib tdlib;
     protected final MultipleViewProvider currentViews;
     protected final MultipleViewProvider overlayViews;
-    public String[] reactions = null;
+    public TdApi.Reaction[] reactions = null;
 
     protected TGMessage (MessagesManager manager, TdApi.Message msg) {
         if (!initialized) {
@@ -640,7 +645,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         final int x;
         int add = 0;
         if (alignBubbleRight() && reactions != null && reactions.length > 0) {
-            add = Screen.dp(10 * reactions.length) + Screen.dp(10);
+            add = Screen.dp(REACTION_SIZE * 2 * reactions.length);
         }
         if (needAvatar() && !isOutgoing()) {
             x = xBubbleLeft1 + Screen.dp(40f);
@@ -1366,7 +1371,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
         int add = 0;
         if (reactions != null && reactions.length > 0) {
-            add = Screen.dp(10 * reactions.length);
+            add = Screen.dp(REACTION_SIZE * reactions.length);
         }
 
         final float left = bubblePathRect.left - padding;
@@ -1426,7 +1431,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     public final void drawBackground (MessageView view, Canvas c) {
         int add = 0;
         if (reactions != null && reactions.length > 0) {
-            add = Screen.dp(10 * reactions.length);
+            add = Screen.dp(REACTION_SIZE * reactions.length);
         }
         if (moveFactor != 0f) {
             c.drawRect(0, findTopEdge(), view.getMeasuredWidth() + add, findBottomEdge(), Paints.fillingPaint(getSelectionColor(moveFactor)));
@@ -1971,8 +1976,29 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     }
 
     private void drawReaction(Canvas canvas, MessageView view, int startX, int startY) {
-        if (reactions != null) {
-            canvas.drawText(reactions[0], startX, startY, Paints.colorPaint(mTimeBubble(), getDecentColor()));
+        if (reactions != null && reactions.length > 0) {
+            if (reactions[0].staticIcon != null) {
+                canvas.save();
+                canvas.restore();
+                for (int i = 0; i < reactions.length && i < 3; i++) {
+                    TdApi.Reaction reaction = reactions[i];
+
+                    TGStickerObj sticker = new TGStickerObj(tdlib, reaction.staticIcon, "", reaction.staticIcon.type);
+                    ImageFile imageFile = sticker.getImage();
+
+                    canvas.translate(startX - Screen.dp(i * REACTION_SIZE), startY - Screen.dp(REACTION_SIZE));
+                    canvas.save();
+                    canvas.restore();
+
+                    ImageReceiver imageReceiver = new ImageReceiver(view, Screen.dp(REACTION_SIZE));
+                    imageReceiver.requestFile(imageFile);
+                    imageReceiver.setBounds(0, 0, Screen.dp(REACTION_SIZE), Screen.dp(REACTION_SIZE));
+                    imageReceiver.draw(canvas);
+                    LoggerHelper.log("reaction[" + i + "] = " + reaction.reaction);
+                }
+            } else {
+                canvas.drawText(reactions[0].reaction, startX, startY, Paints.colorPaint(mTimeBubble(), getDecentColor()));
+            }
         }
     }
 
@@ -3140,7 +3166,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         isPinned.draw(c, startX, counterY, Gravity.LEFT, 1f, view, iconColorId);
         startX += isPinned.getScaledWidth(Screen.dp(COUNTER_ICON_MARGIN));
         if (reactions != null && reactions.length > 0) {
-            startX += Screen.dp(10);
+            startX += Screen.dp(10) * reactions.length;
         }
 
         if (shouldShowEdited()) {

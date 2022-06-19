@@ -33,7 +33,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
-import android.transition.Scene;
 import android.util.SparseIntArray;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -56,7 +55,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
 import androidx.collection.SparseArrayCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -114,7 +112,7 @@ import org.thunderdog.challegram.widget.MaterialEditText;
 import org.thunderdog.challegram.widget.MaterialEditTextGroup;
 import org.thunderdog.challegram.widget.NoScrollTextView;
 import org.thunderdog.challegram.widget.PopupLayout;
-import org.thunderdog.challegram.widget.ReactionLinearLayout;
+import org.thunderdog.challegram.widget.reactionview.ReactionLinearLayout;
 import org.thunderdog.challegram.widget.SeparatorView;
 import org.thunderdog.challegram.widget.ShadowView;
 import org.thunderdog.challegram.widget.TimerView;
@@ -2341,6 +2339,11 @@ public abstract class ViewController<T> implements Future<View>, ThemeChangeList
 
         if (reactions != null && reactions.length > 0) {
             ReactionLinearLayout reactionLinearLayout = new ReactionLinearLayout(context, message, tdlib, reactions);
+            reactionLinearLayout.setReactionCallBack(() -> {
+                popupLayout.hideWindow(true);
+                message.requestLayout();
+
+            });
             reactionLinearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Screen.dp(54f)));
             optionsWrap.addView(reactionLinearLayout);
         }

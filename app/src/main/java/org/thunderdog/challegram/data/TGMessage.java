@@ -14,7 +14,7 @@
  */
 package org.thunderdog.challegram.data;
 
-import static org.thunderdog.challegram.widget.ReactionLinearLayout.REACTION_SIZE;
+import static org.thunderdog.challegram.widget.reactionview.ReactionLinearLayout.REACTION_SIZE;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -36,7 +36,6 @@ import android.util.SparseIntArray;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.LinearLayout;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.CallSuper;
@@ -54,7 +53,6 @@ import org.drinkmore.Tracer;
 import org.thunderdog.challegram.BaseActivity;
 import org.thunderdog.challegram.BuildConfig;
 import org.thunderdog.challegram.Log;
-import org.thunderdog.challegram.LoggerHelper;
 import org.thunderdog.challegram.R;
 import org.thunderdog.challegram.U;
 import org.thunderdog.challegram.component.chat.MessageView;
@@ -62,7 +60,6 @@ import org.thunderdog.challegram.component.chat.MessageViewGroup;
 import org.thunderdog.challegram.component.chat.MessagesManager;
 import org.thunderdog.challegram.component.chat.MessagesTouchHelperCallback;
 import org.thunderdog.challegram.component.chat.ReplyComponent;
-import org.thunderdog.challegram.component.sticker.StickerSmallView;
 import org.thunderdog.challegram.component.sticker.TGStickerObj;
 import org.thunderdog.challegram.config.Config;
 import org.thunderdog.challegram.config.Device;
@@ -186,9 +183,11 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
     protected String time;
 
-    protected @NonNull final TdlibSender sender;
+    protected @NonNull
+    final TdlibSender sender;
 
-    protected @Nullable final String viaBotUsername;
+    protected @Nullable
+    final String viaBotUsername;
     protected TGSource forwardInfo;
     protected ReplyComponent replyData;
     protected TGInlineKeyboard inlineKeyboard;
@@ -196,8 +195,10 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     // header values
 
     private String date;
-    private @Nullable Text hAuthorNameT, hPsaTextT, hAuthorChatMark;
-    private @Nullable Text hAdminNameT;
+    private @Nullable
+    Text hAuthorNameT, hPsaTextT, hAuthorChatMark;
+    private @Nullable
+    Text hAdminNameT;
     private ImageFile hAvatar;
     private AvatarPlaceholder hAvatarPlaceholder;
     private Letters uBadge;
@@ -238,7 +239,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     protected final MultipleViewProvider overlayViews;
     public TdApi.Reaction[] reactions = null;
 
-    protected TGMessage (MessagesManager manager, TdApi.Message msg) {
+    protected TGMessage(MessagesManager manager, TdApi.Message msg) {
         if (!initialized) {
             synchronized (TGMessage.class) {
                 if (!initialized) {
@@ -359,12 +360,13 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
             startHotTimer(false);
         }
         tdlib.getMessageReactions(msg, arg -> {
-           reactions = arg;
-           requestLayout();
+            reactions = arg;
+            requestLayout();
         });
     }
 
-    private static @NonNull <T> T nonNull (@Nullable T value) {
+    private static @NonNull
+    <T> T nonNull(@Nullable T value) {
         if (value == null) {
             throw new IllegalArgumentException("TDLib bug");
         }
@@ -372,35 +374,35 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     }
 
     @Override
-    public final BaseActivity context () {
+    public final BaseActivity context() {
         return manager.controller().context();
     }
 
     @Override
-    public final Tdlib tdlib () {
+    public final Tdlib tdlib() {
         return tdlib;
     }
 
-    public final MessagesManager manager () {
+    public final MessagesManager manager() {
         return manager;
     }
 
-    public final MessagesController messagesController () {
+    public final MessagesController messagesController() {
         return manager.controller();
     }
 
-    public final ViewController<?> controller () {
+    public final ViewController<?> controller() {
         return messagesController().getParentOrSelf();
     }
 
-    public final void navigateTo (ViewController<?> c) {
+    public final void navigateTo(ViewController<?> c) {
         if (!controller().navigateTo(c))
             c.destroy();
     }
 
     // Value Generators
 
-    private String genTime () {
+    private String genTime() {
         if (isEventLog()) {
             return Lang.getRelativeTimestampShort(msg.date, TimeUnit.SECONDS);
         } else if (isSponsored()) {
@@ -467,7 +469,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return b.toString();
     }
 
-    private String genForwardTime () {
+    private String genForwardTime() {
         if (!useForward()) {
             return null;
         }
@@ -479,7 +481,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
     // Other
 
-    private String genDate () {
+    private String genDate() {
         if (isDemoChat() && (flags & MESSAGE_FLAG_HAS_OLDER_MESSAGE) == 0) {
             return Lang.getString(R.string.ChatPreview);
         }
@@ -508,11 +510,11 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return Lang.getDate(getComparingDate(), TimeUnit.SECONDS);
     }
 
-    public final void forceAvatarWhenMerging (boolean value) {
+    public final void forceAvatarWhenMerging(boolean value) {
         flags = BitwiseUtils.setFlag(flags, MESSAGE_FLAG_FORCE_AVATAR, value);
     }
 
-    public final boolean mergeWith (@Nullable TGMessage top, boolean isBottom) {
+    public final boolean mergeWith(@Nullable TGMessage top, boolean isBottom) {
         if (top != null) {
             top.setNeedExtraPadding(false);
             top.setNeedExtraPresponsoredPadding(isSponsored());
@@ -600,49 +602,49 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return false;
     }
 
-    private static boolean showUnreadAlways (TGMessage msg) {
+    private static boolean showUnreadAlways(TGMessage msg) {
         return msg instanceof TGMessageMedia || msg instanceof TGMessageSticker;
     }
 
-    protected boolean headerDisabled () {
+    protected boolean headerDisabled() {
         return false;
     }
 
-    protected boolean disableBubble () {
+    protected boolean disableBubble() {
         return false;
     }
 
-    protected final boolean useBubble () {
+    protected final boolean useBubble() {
         return useBubbles() && (!disableBubble() || useForward());
     }
 
-    protected boolean separateReplyFromBubble () {
+    protected boolean separateReplyFromBubble() {
         return false;
     }
 
-    protected boolean mergeDisabled () {
+    protected boolean mergeDisabled() {
         return false;
     }
 
-    public boolean hasHeader () {
+    public boolean hasHeader() {
         return !headerDisabled() && (flags & FLAG_HEADER_ENABLED) != 0;
     }
 
-    protected int getSmallestMaxContentWidth () {
+    protected int getSmallestMaxContentWidth() {
         return Math.min(pRealContentMaxWidth, Screen.smallestSide() - xPaddingRight - pRealContentX);
     }
 
-    protected int getSmallestMaxContentHeight () {
+    protected int getSmallestMaxContentHeight() {
         return (int) ((float) getSmallestMaxContentWidth() * 1.24f);
     }
 
-    protected static int getEstimatedContentMaxWidth () {
+    protected static int getEstimatedContentMaxWidth() {
         return Screen.smallestSide() - xPaddingRight - xContentLeft;
     }
 
     // Layout
 
-    private int computeBubbleLeft () {
+    private int computeBubbleLeft() {
         final int x;
         if (needAvatar() && !isOutgoing()) {
             x = xBubbleLeft1 + Screen.dp(40f);
@@ -652,15 +654,15 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return x;
     }
 
-    private int computeBubbleTop () {
+    private int computeBubbleTop() {
         return getHeaderPadding() + getBubbleViewPaddingTop();
     }
 
-    private int getAuthorWidth () {
+    private int getAuthorWidth() {
         return hAuthorNameT != null ? hAuthorNameT.getWidth() + (hAuthorChatMark != null ? hAuthorChatMark.getWidth() + Screen.dp(8f) : 0) : needName(true) ? -Screen.dp(3f) : 0;
     }
 
-    private int computeBubbleWidth () {
+    private int computeBubbleWidth() {
         final int contentWidth = getContentWidth();
         int width = contentWidth;
         if (allowMessageHorizontalExtend()) {
@@ -683,7 +685,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
             if (allowMessageHorizontalExtend()) {
                 boolean isPsa = isPsa() && !forceForwardedInfo();
                 float forwardWidth = Math.max((isPsa && fPsaTextT != null ? fAuthorNameT.getWidth() : fAuthorNameT != null ? fAuthorNameT.getWidth() : 0) +
-                                + fTimeWidth + Screen.dp(6f)
+                                +fTimeWidth + Screen.dp(6f)
                                 + (getViewCountMode() == VIEW_COUNT_FORWARD ? viewCounter.getScaledWidth(Screen.dp(COUNTER_ICON_MARGIN + COUNTER_ADD_MARGIN)) + shareCounter.getScaledWidth(Screen.dp(COUNTER_ICON_MARGIN + COUNTER_ADD_MARGIN)) : 0),
                         isPsa && fPsaTextT != null && fAuthorNameT != null ? fAuthorNameT.getWidth() : 0)
                         + (replyData != null ? xTextPadding : 0);
@@ -696,7 +698,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return width; //  + getBubblePaddingLeft() + getBubblePaddingRight();
     }
 
-    protected final boolean useForward () {
+    protected final boolean useForward() {
         // && !((flags & FLAG_SELF_CHAT) == 0 && msg.forwardInfo.origin.getConstructor() != TdApi.MessageForwardOriginChannel.CONSTRUCTOR && msg.content != null && msg.content.getConstructor() == TdApi.MessageAudio.CONSTRUCTOR)
         return msg.forwardInfo != null && (!useBubbles() || !separateReplyFromBubble()) && !forceForwardedInfo();
     }
@@ -705,7 +707,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     private static final int VIEW_COUNT_MAIN = 1;
     private static final int VIEW_COUNT_FORWARD = 2;
 
-    private int getViewCountMode () {
+    private int getViewCountMode() {
         if (viewCounter != null) {
             if (useForward() && !msg.isChannelPost && msg.forwardInfo != null && msg.forwardInfo.origin.getConstructor() == TdApi.MessageForwardOriginChannel.CONSTRUCTOR) {
                 return VIEW_COUNT_FORWARD;
@@ -723,7 +725,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
     private final BoolAnimator hasCommentButton = new BoolAnimator(0, new FactorAnimator.Target() {
         @Override
-        public void onFactorChanged (int id, float factor, float fraction, FactorAnimator callee) {
+        public void onFactorChanged(int id, float factor, float fraction, FactorAnimator callee) {
             if (BitwiseUtils.getFlag(flags, FLAG_LAYOUT_BUILT)) {
                 if (useBubbles()) {
                     int height = getHeight();
@@ -738,16 +740,16 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     }, AnimatorUtils.DECELERATE_INTERPOLATOR, 200l);
     private final BoolAnimator openingComments = new BoolAnimator(0, new FactorAnimator.Target() {
         @Override
-        public void onFactorChanged (int id, float factor, float fraction, FactorAnimator callee) {
+        public void onFactorChanged(int id, float factor, float fraction, FactorAnimator callee) {
             invalidate();
         }
     }, AnimatorUtils.DECELERATE_INTERPOLATOR, 200l);
 
-    protected final int getCommentMode () {
+    protected final int getCommentMode() {
         return needCommentButton() ? (!useBubble() || useCircleBubble() ? COMMENT_MODE_DETACHED_BUTTON : COMMENT_MODE_BUTTON) : COMMENT_MODE_NONE;
     }
 
-    public final TdApi.Message findMessageWithThread () {
+    public final TdApi.Message findMessageWithThread() {
         synchronized (this) {
             if (combinedMessages != null && !combinedMessages.isEmpty()) {
                 for (TdApi.Message message : combinedMessages) {
@@ -760,7 +762,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    protected final boolean needCommentButton () {
+    protected final boolean needCommentButton() {
         if (!Config.COMMENTS_SUPPORTED || !msg.isChannelPost || isScheduled() || !allowInteraction() || isSponsored()) {
             return false;
         }
@@ -780,7 +782,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return (msg.canGetMessageThread || isSending) && TD.getReplyInfo(msg.interactionInfo) != null;
     }
 
-    public final void openMessageThread (MessageId highlightMessageId) {
+    public final void openMessageThread(MessageId highlightMessageId) {
         if (!Config.COMMENTS_SUPPORTED) {
             tdlib.ui().openMessage(controller(), highlightMessageId.getChatId(), highlightMessageId, openParameters());
             return;
@@ -810,7 +812,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }));
     }
 
-    private int computeBubbleHeight () {
+    private int computeBubbleHeight() {
         int height = getContentHeight();
         if (replyData != null && !alignReplyHorizontally()) {
             height += getBubbleReplyOffset();
@@ -832,15 +834,15 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return height;
     }
 
-    private static int getBubbleForwardOffset () {
+    private static int getBubbleForwardOffset() {
         return getBubbleNameHeight();
     }
 
-    private int getBubbleReplyOffset () {
+    private int getBubbleReplyOffset() {
         return ReplyComponent.height() + Screen.dp(useBubble() ? 3f : 6f) - (useForward() ? Screen.dp(9f) : 0);
     }
 
-    public void rebuildLayout () {
+    public void rebuildLayout() {
         final int width = this.width;
         if (width != 0) {
             this.width = 0;
@@ -848,7 +850,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public void prepareLayout () {
+    public void prepareLayout() {
         if (this.width != 0) {
             rebuildLayout();
         } else {
@@ -856,7 +858,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public void buildLayout (int width) {
+    public void buildLayout(int width) {
         if (width == 0 || this.width == width) {
             return;
         }
@@ -941,11 +943,12 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         flags |= FLAG_LAYOUT_BUILT;
     }
 
-    protected int getContentMaxWidth () {
+    protected int getContentMaxWidth() {
         return pContentMaxWidth;
     }
 
-    public final @ColorInt int getContentReplaceColor () {
+    public final @ColorInt
+    int getContentReplaceColor() {
         if (useBubbles()) {
             return Theme.getColor(isOutgoingBubble() ? R.id.theme_color_bubbleOut_background : R.id.theme_color_bubbleIn_background);
         } else {
@@ -958,15 +961,15 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public final boolean isOutgoingBubble () {
+    public final boolean isOutgoingBubble() {
         return useBubbles() && isOutgoing() && !isChannel() && !isEventLog();
     }
 
-    protected boolean alignBubbleRight () {
+    protected boolean alignBubbleRight() {
         return useBubbles() && (isOutgoingBubble() != Lang.rtl());
     }
 
-    private void updateContentPositions (boolean maxOnly) {
+    private void updateContentPositions(boolean maxOnly) {
         if (useFullWidth()) {
             pContentX = 0;
             pContentMaxWidth = width;
@@ -979,15 +982,15 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    private int measureKeyboardLeft () {
+    private int measureKeyboardLeft() {
         return useBubbles() ? alignBubbleRight() ? getActualRightContentEdge() - inlineKeyboard.getWidth() : getActualLeftContentEdge() : pRealContentX;
     }
 
-    private int measureKeyboardTop () {
+    private int measureKeyboardTop() {
         return useBubbles() ? bottomContentEdge + TGInlineKeyboard.getButtonSpacing() : pContentY + getContentHeight() + getPaddingBottom() + (hasFooter() ? getFooterHeight() + getFooterPaddingTop() + getFooterPaddingBottom() : 0);
     }
 
-    protected boolean rebuildContentDimensions () {
+    protected boolean rebuildContentDimensions() {
         if ((flags & FLAG_LAYOUT_BUILT) != 0) {
             updateContentPositions(true);
             buildBubble(false);
@@ -999,7 +1002,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    protected boolean rebuildContent () {
+    protected boolean rebuildContent() {
         if ((flags & FLAG_LAYOUT_BUILT) != 0) {
             updateContentPositions(true);
             buildContent(pContentMaxWidth);
@@ -1013,7 +1016,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    protected void rebuildAndUpdateContent () {
+    protected void rebuildAndUpdateContent() {
         boolean isBackground = Looper.myLooper() != Looper.getMainLooper();
         if (isBackground) {
             if (rebuildContent()) {
@@ -1030,19 +1033,19 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    private int getBubbleViewPaddingTop () {
+    private int getBubbleViewPaddingTop() {
         return useBubble() ? ((flags & FLAG_HEADER_ENABLED) != 0 ? xBubbleViewPadding : xBubbleViewPaddingSmall) : xBubbleViewPadding;
     }
 
-    private int getBubbleViewPaddingBottom () {
+    private int getBubbleViewPaddingBottom() {
         return useBubble() ? (isBottomMessage() || (inlineKeyboard != null && !inlineKeyboard.isEmpty()) ? xBubbleViewPadding : xBubbleViewPaddingSmall) : xBubbleViewPadding;
     }
 
-    protected final int getPaddingBottom () {
+    protected final int getPaddingBottom() {
         return useBubbles() ? getBubbleViewPaddingBottom() : xPaddingBottom;
     }
 
-    protected final int getExtraPadding () {
+    protected final int getExtraPadding() {
         if (needSponsorSmallPadding) {
             return Screen.dp(7f);
         }
@@ -1050,7 +1053,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return (flags & FLAG_EXTRA_PADDING) != 0 ? Screen.dp(7f) + (messagesController().needExtraBigPadding() ? Screen.dp(48f) : 0) : 0;
     }
 
-    public int computeHeight () {
+    public int computeHeight() {
         if (useBubbles()) {
             int height = bottomContentEdge + getPaddingBottom() + getExtraPadding();
             if (inlineKeyboard != null && !inlineKeyboard.isEmpty()) {
@@ -1069,45 +1072,48 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    protected boolean useLargeHeight () {
+    protected boolean useLargeHeight() {
         return false;
     }
 
-    protected final boolean useFullWidth () {
+    protected final boolean useFullWidth() {
         return !useForward() && !useBubbles() && preferFullWidth() && !isEventLog();
     }
 
-    protected boolean preferFullWidth () {
+    protected boolean preferFullWidth() {
         return false;
     }
 
-    protected void buildContent (int maxWidth) { }
+    protected void buildContent(int maxWidth) {
+    }
 
-    protected int getContentWidth () {
+    protected int getContentWidth() {
         return pRealContentMaxWidth;
     }
 
-    protected int getContentHeight () { return 10; }
+    protected int getContentHeight() {
+        return 10;
+    }
 
-    protected boolean centerBubble () {
+    protected boolean centerBubble() {
         return false;
     }
 
     // Drawing
 
-    private boolean needHeader () {
+    private boolean needHeader() {
         return (flags & FLAG_HEADER_ENABLED) != 0;
     }
 
-    private boolean shouldShowTicks () {
+    private boolean shouldShowTicks() {
         return !headerDisabled() && !isChannel() && !TD.isFailed(msg) && ((needHeader() && isOutgoing()) || (flags & FLAG_SHOW_TICKS) != 0) && !(!useBubbles() && noUnread() && !needHeader()) && !isFailed();
     }
 
-    private boolean shouldShowEdited () {
+    private boolean shouldShowEdited() {
         return !headerDisabled() && (isEdited() || isBeingEdited()) && msg.viaBotUserId == 0 && !sender.isBot() && !sender.isServiceAccount() && (useBubbles() ? useBubbleTime() : (!isOutgoing() || hasHeader() || !shouldShowTicks())) && (getViewCount() > 0 || !isEventLog());
     }
 
-    private boolean needAvatar () {
+    private boolean needAvatar() {
         if (!useBubbles()) {
             return true;
         }
@@ -1130,26 +1136,26 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return !isOutgoing() && isDemoGroupChat();
     }
 
-    protected final boolean isDemoChat () {
+    protected final boolean isDemoChat() {
         return msg.chatId == 0;
     }
 
-    protected final boolean isDemoGroupChat () {
+    protected final boolean isDemoGroupChat() {
         return isDemoChat() && manager.isDemoGroupChat();
     }
 
-    protected final TdApi.User userForId (long userId) {
+    protected final TdApi.User userForId(long userId) {
         if (!msg.isOutgoing && isDemoChat())
             return manager.demoParticipant(userId);
         else
             return tdlib.cache().user(userId);
     }
 
-    protected final boolean needName () {
+    protected final boolean needName() {
         return needName(true);
     }
 
-    private boolean needName (boolean allowVia) {
+    private boolean needName(boolean allowVia) {
         if (!useBubbles() ||
                 (useBubble() && ((msg.viaBotUserId != 0 && !useForward() && allowVia) ||
                         ((flags & FLAG_SELF_CHAT) != 0 && !isOutgoing())))) {
@@ -1177,7 +1183,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return !isOutgoing() && isDemoGroupChat();
     }
 
-    private boolean useBubbleTime () {
+    private boolean useBubbleTime() {
         return !headerDisabled() && (!useForward() || (isOutgoing() || (flags & FLAG_HEADER_ENABLED) != 0)) && (msg.content.getConstructor() != TdApi.MessageCall.CONSTRUCTOR);
     }
 
@@ -1190,7 +1196,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     private static Bitmap leftShadow, topShadow, rightShadow, bottomShadow;
     private static Paint shadowPaint;
 
-    private static void initBubbleResources () {
+    private static void initBubbleResources() {
         Resources res = UI.getResources();
         cornerTopLeftSmall = BitmapFactory.decodeResource(res, R.drawable.corner_small_up_left_w);
         cornerTopLeftBig = BitmapFactory.decodeResource(res, R.drawable.corner_big_up_left_w);
@@ -1221,11 +1227,11 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         shadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
     }
 
-    protected boolean needBubbleCornerFix () {
+    protected boolean needBubbleCornerFix() {
         return false;
     }
 
-    private void drawBubbleShadow (Canvas c, float factor) {
+    private void drawBubbleShadow(Canvas c, float factor) {
         int alpha = (int) (255f * factor);
         if (alpha <= 0) {
             return;
@@ -1276,7 +1282,8 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
             ty = bubblePathRect.top - topShadow.getHeight() + offset;
             c.translate(tx - cx, ty - cy);
             c.drawRect(0, 0, shadowRight - shadowLeft, topShadow.getHeight(), topShadowPaint);
-            cx = tx; cy = ty;
+            cx = tx;
+            cy = ty;
         }
 
         shadowLeft = left + bottomLeft.getWidth();
@@ -1287,7 +1294,8 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
             ty = bubblePathRect.bottom - offset;
             c.translate(tx - cx, ty - cy);
             c.drawRect(0, 0, shadowRight - shadowLeft, bottomShadow.getHeight(), bottomShadowPaint);
-            cx = tx; cy = ty;
+            cx = tx;
+            cy = ty;
         }
 
         shadowTop = top + topLeft.getHeight();
@@ -1298,7 +1306,8 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
             ty = shadowTop;
             c.translate(tx - cx, ty - cy);
             c.drawRect(0, 0, leftShadow.getWidth(), shadowBottom - shadowTop, leftShadowPaint);
-            cx = tx; cy = ty;
+            cx = tx;
+            cy = ty;
         }
 
         shadowTop = top + topRight.getHeight();
@@ -1309,13 +1318,14 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
             ty = shadowTop;
             c.translate(tx - cx, ty - cy);
             c.drawRect(0, 0, rightShadow.getWidth(), shadowBottom - shadowTop, rightShadowPaint);
-            cx = tx; cy = ty;
+            cx = tx;
+            cy = ty;
         }
 
         c.restore();
     }
 
-    public static void drawCornerFixes (Canvas c, TGMessage source, float factor, float left, float top, float right, float bottom, float topLeftRadius, float topRightRadius, float bottomRightRadius, float bottomLeftRadius) {
+    public static void drawCornerFixes(Canvas c, TGMessage source, float factor, float left, float top, float right, float bottom, float topLeftRadius, float topRightRadius, float bottomRightRadius, float bottomLeftRadius) {
         if (factor == 0f)
             return;
         Paint paint = Paints.strokeBigPaint(ColorUtils.alphaColor(factor, source.getContentReplaceColor()));
@@ -1361,7 +1371,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    private void drawBubble (Canvas c, Paint paint, boolean stroke, int padding) {
+    private void drawBubble(Canvas c, Paint paint, boolean stroke, int padding) {
         if (paint.getAlpha() == 0) {
             return;
         }
@@ -1420,7 +1430,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public final void drawBackground (MessageView view, Canvas c) {
+    public final void drawBackground(MessageView view, Canvas c) {
         int add = 0;
         if (moveFactor != 0f) {
             c.drawRect(0, findTopEdge(), view.getMeasuredWidth() + add, findBottomEdge(), Paints.fillingPaint(getSelectionColor(moveFactor)));
@@ -1433,85 +1443,85 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public static int getDateHeight (boolean useBubbles) {
+    public static int getDateHeight(boolean useBubbles) {
         return (useBubbles ? xDatePadding - Screen.dp(3f) * 2 : xDatePadding);
     }
 
-    public final boolean hasDate () {
+    public final boolean hasDate() {
         return (flags & FLAG_SHOW_DATE) != 0;
     }
 
     private Object tag;
 
-    public final void setTag (Object tag) {
+    public final void setTag(Object tag) {
         this.tag = tag;
     }
 
-    public final Object getTag () {
+    public final Object getTag() {
         return tag;
     }
 
-    public int getDateWidth () {
+    public int getDateWidth() {
         return pDateWidth;
     }
 
-    public int getDatePadding () {
+    public int getDatePadding() {
         return Screen.dp(useBubbles() ? 8f : 10f);
     }
 
-    protected final int getBubbleDateBackgroundColor () {
+    protected final int getBubbleDateBackgroundColor() {
         return manager.getOverlayColor(0, R.id.theme_color_bubble_date, R.id.theme_color_bubble_date_noWallpaper, ThemeProperty.WALLPAPER_OVERRIDE_DATE);
     }
 
-    protected final int getBubbleDateTextColor () {
+    protected final int getBubbleDateTextColor() {
         return manager.getColor(0, R.id.theme_color_bubble_dateText, R.id.theme_color_bubble_dateText_noWallpaper, ThemeProperty.WALLPAPER_OVERRIDE_DATE);
     }
 
-    protected final int getUnreadSeparatorBackgroundColor () {
+    protected final int getUnreadSeparatorBackgroundColor() {
         return manager.getOverlayColor(R.id.theme_color_unread, R.id.theme_color_bubble_unread, R.id.theme_color_bubble_unread_noWallpaper, ThemeProperty.WALLPAPER_OVERRIDE_UNREAD);
     }
 
-    protected final int getUnreadSeparatorContentColor () {
+    protected final int getUnreadSeparatorContentColor() {
         return manager.getColor(R.id.theme_color_unreadText, R.id.theme_color_bubble_unreadText, R.id.theme_color_bubble_unreadText_noWallpaper, ThemeProperty.WALLPAPER_OVERRIDE_UNREAD);
     }
 
-    public final int getBubbleMediaReplyBackgroundColor () {
+    public final int getBubbleMediaReplyBackgroundColor() {
         return manager.getOverlayColor(0, R.id.theme_color_bubble_mediaReply, R.id.theme_color_bubble_mediaReply_noWallpaper, ThemeProperty.WALLPAPER_OVERRIDE_MEDIA_REPLY);
     }
 
-    public final int getBubbleMediaReplyTextColor () {
+    public final int getBubbleMediaReplyTextColor() {
         return manager.getColor(0, R.id.theme_color_bubble_mediaReplyText, R.id.theme_color_bubble_mediaReplyText_noWallpaper, ThemeProperty.WALLPAPER_OVERRIDE_MEDIA_REPLY);
     }
 
-    protected final int getBubbleTimeColor () {
+    protected final int getBubbleTimeColor() {
         return manager.getOverlayColor(0, R.id.theme_color_bubble_mediaTime, R.id.theme_color_bubble_mediaTime_noWallpaper, ThemeProperty.WALLPAPER_OVERRIDE_TIME);
     }
 
-    protected final int getBubbleTimeTextColor () {
+    protected final int getBubbleTimeTextColor() {
         return manager.getColor(0, R.id.theme_color_bubble_mediaTimeText, R.id.theme_color_bubble_mediaTimeText_noWallpaper, ThemeProperty.WALLPAPER_OVERRIDE_TIME);
     }
 
-    public final int getBubbleButtonBackgroundColor () {
+    public final int getBubbleButtonBackgroundColor() {
         return manager.getOverlayColor(0, R.id.theme_color_bubble_button, R.id.theme_color_bubble_button_noWallpaper, ThemeProperty.WALLPAPER_OVERRIDE_BUTTON);
     }
 
-    public final int getBubbleButtonRippleColor () {
+    public final int getBubbleButtonRippleColor() {
         return manager.getOverlayColor(0, R.id.theme_color_bubble_buttonRipple, R.id.theme_color_bubble_buttonRipple_noWallpaper, ThemeProperty.WALLPAPER_OVERRIDE_BUTTON);
     }
 
-    public final int getBubbleButtonTextColor () {
+    public final int getBubbleButtonTextColor() {
         return manager.getColor(0, R.id.theme_color_bubble_buttonText, R.id.theme_color_bubble_buttonText_noWallpaper, ThemeProperty.WALLPAPER_OVERRIDE_BUTTON);
     }
 
-    public static int getBubbleTransparentColor (MessagesManager manager) {
+    public static int getBubbleTransparentColor(MessagesManager manager) {
         return manager.getOverlayColor(0, R.id.theme_color_bubble_overlay, R.id.theme_color_bubble_overlay_noWallpaper, ThemeProperty.WALLPAPER_OVERRIDE_OVERLAY);
     }
 
-    public static int getBubbleTransparentTextColor (MessagesManager manager) {
+    public static int getBubbleTransparentTextColor(MessagesManager manager) {
         return manager.getColor(0, R.id.theme_color_bubble_overlayText, R.id.theme_color_bubble_overlayText_noWallpaper, ThemeProperty.WALLPAPER_OVERRIDE_OVERLAY);
     }
 
-    public boolean drawDate (Canvas c, int centerX, int startY, float detachFactor, float alpha) {
+    public boolean drawDate(Canvas c, int centerX, int startY, float detachFactor, float alpha) {
         if (!hasDate()) {
             return false;
         }
@@ -1558,19 +1568,19 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return true;
     }
 
-    public String getDrawDateText () {
+    public String getDrawDateText() {
         return date;
     }
 
-    public final int getDrawDateY () {
+    public final int getDrawDateY() {
         return (flags & FLAG_SHOW_BADGE) != 0 ? xBadgeHeight + (useBubbles() ? Screen.dp(3.5f) : 0) : 0;
     }
 
-    public final boolean separateReplyFromContent () {
+    public final boolean separateReplyFromContent() {
         return useBubbles() && (!useBubble() || separateReplyFromBubble());
     }
 
-    public final void draw (MessageView view, Canvas c, @NonNull ImageReceiver avatarReceiver, Receiver replyReceiver, DoubleImageReceiver previewReceiver, ImageReceiver contentReceiver, GifReceiver gifReceiver, ComplexReceiver complexReceiver) {
+    public final void draw(MessageView view, Canvas c, @NonNull ImageReceiver avatarReceiver, Receiver replyReceiver, DoubleImageReceiver previewReceiver, ImageReceiver contentReceiver, GifReceiver gifReceiver, ComplexReceiver complexReceiver) {
         final int viewWidth = view.getMeasuredWidth();
 
         final boolean useBubbles = useBubbles();
@@ -1966,51 +1976,49 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
     private void drawReaction(Canvas canvas, MessageView view, int startX, int startY) {
         if (reactions != null && reactions.length > 0) {
-            if (reactions[0].staticIcon != null) {
-                canvas.save();
-                canvas.restore();
-                for (int i = 0; i < reactions.length && i < 3; i++) {
-                    TdApi.Reaction reaction = reactions[i];
+            canvas.save();
+            canvas.restore();
+            canvas.translate(
+                    startX - Screen.dp(17),
+                    startY - Screen.dp(REACTION_SIZE) + Screen.dp(4)
+            );
+            for (int i = 0; i < reactions.length && i < 3; i++) {
+                TdApi.Reaction reaction = reactions[i];
 
-                    TGStickerObj sticker = new TGStickerObj(tdlib, reaction.staticIcon, "", reaction.staticIcon.type);
-                    ImageFile imageFile = sticker.getImage();
+                TGStickerObj sticker = new TGStickerObj(tdlib, reaction.staticIcon, "", reaction.staticIcon.type);
+                ImageFile imageFile = sticker.getImage();
 
-                    canvas.translate(startX - Screen.dp(15), startY - Screen.dp(REACTION_SIZE) + Screen.dp(2));
+                canvas.translate(-i * Screen.dp(REACTION_SIZE) - Screen.dp(2), 0);
 
-                    ImageReceiver imageReceiver = new ImageReceiver(view, Screen.dp(REACTION_SIZE));
-                    imageReceiver.requestFile(imageFile);
-                    imageReceiver.setBounds(0, 0, Screen.dp(REACTION_SIZE), Screen.dp(REACTION_SIZE));
-                    imageReceiver.draw(canvas);
-                    LoggerHelper.log("reaction[" + i + "] = " + reaction.reaction);
-                }
-                canvas.save();
-                canvas.restore();
+                ImageReceiver imageReceiver = new ImageReceiver(view, Screen.dp(REACTION_SIZE));
+                imageReceiver.requestFile(imageFile);
+                imageReceiver.setBounds(0, 0, Screen.dp(REACTION_SIZE), Screen.dp(REACTION_SIZE));
+                imageReceiver.draw(canvas);
             }
-//            else {
-//                canvas.drawText(reactions[0].reaction, startX, startY, Paints.colorPaint(mTimeBubble(), getDecentColor()));
-//            }
+            canvas.save();
+            canvas.restore();
         }
         Views.restore(canvas, 100);
     }
 
 
-    protected final boolean needColoredNames () {
+    protected final boolean needColoredNames() {
         return !msg.isOutgoing && (TD.isMultiChat(chat) || isDemoGroupChat());
     }
 
-    private int getInternalBubbleStartX () {
+    private int getInternalBubbleStartX() {
         return getActualLeftContentEdge() + xBubblePadding + xBubblePaddingSmall;
     }
 
-    private int getInternalBubbleEndX () {
+    private int getInternalBubbleEndX() {
         return getActualRightContentEdge() - xBubblePadding - xBubblePaddingSmall;
     }
 
-    public final int getSelectableContentOffset (float selectableFactor) {
+    public final int getSelectableContentOffset(float selectableFactor) {
         return useBubbles() && !isOutgoingBubble() && !headerDisabled() ? (int) (Screen.dp(28f) * selectableFactor) : 0;
     }
 
-    public final void drawOverlay (MessageView view, Canvas c) {
+    public final void drawOverlay(MessageView view, Canvas c) {
         int contentOffset = getSelectableContentOffset(manager.getSelectableFactor());
         MessageViewGroup parentViewGroup = view.getParentMessageViewGroup();
         if (parentViewGroup != null) {
@@ -2042,66 +2050,66 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    protected void drawOverlay (MessageView view, Canvas c, int startX, int startY, int maxWidth) {
+    protected void drawOverlay(MessageView view, Canvas c, int startX, int startY, int maxWidth) {
         // Override
     }
 
-    protected void drawContent (MessageView view, Canvas c, int startX, int startY, int maxWidth) {
+    protected void drawContent(MessageView view, Canvas c, int startX, int startY, int maxWidth) {
         // These two dots should never appear in MessagesListView
 
         c.drawCircle(startX + 5f, startY + 5f, 5f, Paints.fillingPaint(Theme.radioFillingColor()));
         c.drawCircle(startX + maxWidth - 5f, startY + 5f, 5f, Paints.fillingPaint(Theme.radioFillingColor()));
     }
 
-    protected void drawContent (MessageView view, Canvas c, int startX, int startY, int maxWidth, ComplexReceiver receiver) {
+    protected void drawContent(MessageView view, Canvas c, int startX, int startY, int maxWidth, ComplexReceiver receiver) {
         // These two dots should never appear in MessagesListView
 
         c.drawCircle(startX + 5f, startY + 5f, 5f, Paints.fillingPaint(Theme.radioFillingColor()));
         c.drawCircle(startX + maxWidth - 5f, startY + 5f, 5f, Paints.fillingPaint(Theme.radioFillingColor()));
     }
 
-    protected void drawContent (MessageView view, Canvas c, int startX, int startY, int maxWidth, Receiver preview, Receiver receiver) {
+    protected void drawContent(MessageView view, Canvas c, int startX, int startY, int maxWidth, Receiver preview, Receiver receiver) {
         // These two dots should never appear in MessagesListView
 
         c.drawCircle(startX + 5f, startY + 5f, 5f, Paints.fillingPaint(Theme.radioFillingColor()));
         c.drawCircle(startX + maxWidth - 5f, startY + 5f, 5f, Paints.fillingPaint(Theme.radioFillingColor()));
     }
 
-    public boolean needImageReceiver () {
+    public boolean needImageReceiver() {
         return false;
     }
 
-    public boolean needViewGroup () {
+    public boolean needViewGroup() {
         return false;
     }
 
-    public int getChildrenWidth () {
+    public int getChildrenWidth() {
         return getContentWidth();
     }
 
-    public int getChildrenHeight () {
+    public int getChildrenHeight() {
         return getContentHeight();
     }
 
-    public int getChildrenLeft () {
+    public int getChildrenLeft() {
         return pContentX;
     }
 
-    public int getChildrenTop () {
+    public int getChildrenTop() {
         return pContentY;
     }
 
-    public boolean needGifReceiver () {
+    public boolean needGifReceiver() {
         return false;
     }
 
-    public boolean needComplexReceiver () {
+    public boolean needComplexReceiver() {
         return false;
     }
 
     // Touch
 
-    private void setViewAttached (boolean isAttached) {
+    private void setViewAttached(boolean isAttached) {
         boolean nowIsAttached = (flags & FLAG_ATTACHED) != 0;
         if (isAttached != nowIsAttached) {
             flags = BitwiseUtils.setFlag(flags, FLAG_ATTACHED, isAttached);
@@ -2112,35 +2120,36 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    protected void onMessageAttachStateChange (boolean isAttached) {
+    protected void onMessageAttachStateChange(boolean isAttached) {
         // override
     }
 
-    public void handleUiMessage (int what, int arg1, int arg2) {
+    public void handleUiMessage(int what, int arg1, int arg2) {
         // override
     }
 
-    private boolean hasAttachedToAnything () {
+    private boolean hasAttachedToAnything() {
         return currentViews.hasAnyTargetToInvalidate() || (overlayViews != null && overlayViews.hasAnyTargetToInvalidate());
     }
 
-    public final void onAttachedToView (@Nullable MessageView view) {
+    public final void onAttachedToView(@Nullable MessageView view) {
         setViewAttached(view != null || hasAttachedToAnything());
         if (currentViews.attachToView(view) && view != null) {
             onMessageAttachedToView(view, true);
         }
     }
 
-    public final void onDetachedFromView (@Nullable MessageView view) {
+    public final void onDetachedFromView(@Nullable MessageView view) {
         if (currentViews.detachFromView(view) && view != null) {
             onMessageAttachedToView(view, false);
         }
         setViewAttached(hasAttachedToAnything());
     }
 
-    protected void onMessageAttachedToView (@NonNull MessageView view, boolean attached) { }
+    protected void onMessageAttachedToView(@NonNull MessageView view, boolean attached) {
+    }
 
-    public final void onAttachedToOverlayView (@Nullable View view) {
+    public final void onAttachedToOverlayView(@Nullable View view) {
         setViewAttached(view != null || hasAttachedToAnything());
         if (view != null && overlayViews != null) {
             if (overlayViews.attachToView(view)) {
@@ -2149,38 +2158,40 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public final void onDetachedFromOverlayView (@Nullable View view) {
+    public final void onDetachedFromOverlayView(@Nullable View view) {
         if (overlayViews != null && overlayViews.detachFromView(view) && view != null) {
             onMessageAttachedToOverlayView(view, false);
         }
         setViewAttached(hasAttachedToAnything());
     }
 
-    protected void onMessageAttachedToOverlayView (@NonNull View view, boolean attached) { }
+    protected void onMessageAttachedToOverlayView(@NonNull View view, boolean attached) {
+    }
 
     // Invalidate attached views
 
-    public final void requestLayout () {
+    public final void requestLayout() {
         currentViews.requestLayout();
     }
 
-    public final boolean hasAnyTargetToInvalidate () {
+    public final boolean hasAnyTargetToInvalidate() {
         return currentViews.hasAnyTargetToInvalidate();
     }
 
     /**
      * Synonym to {@link #hasAnyTargetToInvalidate()}
+     *
      * @return false, when layout must be updated immediately
      */
-    protected final boolean needAnimateChanges () {
+    protected final boolean needAnimateChanges() {
         return hasAnyTargetToInvalidate() && controller().getParentOrSelf().isAttachedToNavigationController() && BitwiseUtils.getFlag(flags, FLAG_LAYOUT_BUILT) && UI.inUiThread();
     }
 
-    public final void invalidate () {
+    public final void invalidate() {
         currentViews.invalidate();
     }
 
-    public final void invalidateParentOrSelf (boolean invalidateOverlay) {
+    public final void invalidateParentOrSelf(boolean invalidateOverlay) {
         invalidate();
         if (needViewGroup()) {
             invalidateParent();
@@ -2190,7 +2201,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public final void invalidateParentOrSelf (int left, int top, int right, int bottom, boolean invalidateOverlay) {
+    public final void invalidateParentOrSelf(int left, int top, int right, int bottom, boolean invalidateOverlay) {
         invalidate(left, top, right, bottom);
         if (needViewGroup()) {
             invalidateParent(left, top, right, bottom);
@@ -2200,28 +2211,28 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public final void invalidateParent () {
+    public final void invalidateParent() {
         currentViews.invalidateParent();
     }
 
-    public final void invalidateParent (int left, int top, int right, int bottom) {
+    public final void invalidateParent(int left, int top, int right, int bottom) {
         currentViews.invalidateParent(left, top, right, bottom);
     }
 
-    public final void invalidate (boolean withOverlay) {
+    public final void invalidate(boolean withOverlay) {
         currentViews.invalidate();
         if (withOverlay && overlayViews != null) {
             overlayViews.invalidate();
         }
     }
 
-    public final void invalidateOverlay () {
+    public final void invalidateOverlay() {
         if (overlayViews != null) {
             overlayViews.invalidate();
         }
     }
 
-    public final void invalidateOverlay (int left, int top, int right, int bottom) {
+    public final void invalidateOverlay(int left, int top, int right, int bottom) {
         if (overlayViews != null) {
             overlayViews.invalidate(left, top, right, bottom);
         }
@@ -2231,77 +2242,78 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     currentViews.invalidateOutline(withInvalidate);
   }*/
 
-    public final void invalidate (int left, int top, int right, int bottom) {
+    public final void invalidate(int left, int top, int right, int bottom) {
         currentViews.invalidate(left, top, right, bottom);
     }
 
-    public final void postInvalidate () {
+    public final void postInvalidate() {
         currentViews.postInvalidate();
     }
 
-    public final void postInvalidate (boolean withOverlay) {
+    public final void postInvalidate(boolean withOverlay) {
         currentViews.postInvalidate();
         if (withOverlay && overlayViews != null) {
             overlayViews.postInvalidate();
         }
     }
 
-    public final void performClickSoundFeedback () {
+    public final void performClickSoundFeedback() {
         currentViews.performClickSoundFeedback();
     }
 
-    public final void performShakeAnimation (boolean isPositive) {
+    public final void performShakeAnimation(boolean isPositive) {
         performWithViews(view -> view.shake(isPositive));
     }
 
-    public final void performConfettiAnimation (int pivotX, int pivotY) {
+    public final void performConfettiAnimation(int pivotX, int pivotY) {
         performWithViews(view -> context().performConfetti(view, pivotX, pivotY));
     }
 
-    private void performWithViews (@NonNull RunnableData<MessageView> act) {
+    private void performWithViews(@NonNull RunnableData<MessageView> act) {
         final ReferenceList<View> attachedToViews = currentViews.getViewsList();
         for (View view : attachedToViews) {
             act.runWithData((MessageView) view);
         }
     }
 
-    public final @Nullable View findCurrentView () {
+    public final @Nullable
+    View findCurrentView() {
         return currentViews.findAnyTarget();
     }
 
     @Override
-    public final void invalidateContent () {
+    public final void invalidateContent() {
         invalidateContentReceiver();
     }
 
-    public final void invalidateContentReceiver (long messageId, int arg) {
+    public final void invalidateContentReceiver(long messageId, int arg) {
         performWithViews(view -> view.invalidateContentReceiver(msg.chatId, messageId, arg));
     }
 
-    public final void invalidatePreviewReceiver () {
+    public final void invalidatePreviewReceiver() {
         performWithViews(view -> view.invalidatePreviewReceiver(msg.chatId, msg.id));
     }
 
-    public final void invalidateContentReceiver () {
+    public final void invalidateContentReceiver() {
         performWithViews(view -> view.invalidateContentReceiver(msg.chatId, msg.id, -1));
     }
 
-    public final void invalidateContentReceiver (int arg) {
+    public final void invalidateContentReceiver(int arg) {
         performWithViews(view -> view.invalidateContentReceiver(msg.chatId, msg.id, arg));
     }
 
-    public final void invalidateReplyReceiver () {
+    public final void invalidateReplyReceiver() {
         performWithViews(view -> view.invalidateReplyReceiver(msg.chatId, msg.id));
     }
 
     // Touch
 
-    public boolean allowLongPress (float x, float y) {
+    public boolean allowLongPress(float x, float y) {
         return true;
     }
 
     @CallSuper
-    public boolean performLongPress (View view, float x, float y) {
+    public boolean performLongPress(View view, float x, float y) {
         if (isSponsored()) {
             return false;
         }
@@ -2316,12 +2328,12 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return result;
     }
 
-    public boolean shouldIgnoreTap (MotionEvent e) {
+    public boolean shouldIgnoreTap(MotionEvent e) {
         // TODO ignore date & unread messages tap
         return false;
     }
 
-    private int getClickType (MessageView view, float x, float y) {
+    private int getClickType(MessageView view, float x, float y) {
         if (replyData != null && replyData.isInside(x, y, useBubbles() && !useBubble())) {
             return CLICK_TYPE_REPLY;
         }
@@ -2345,13 +2357,13 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
     private final ClickHelper clickHelper = new ClickHelper(new ClickHelper.Delegate() {
         @Override
-        public boolean needClickAt (View view, float x, float y) {
+        public boolean needClickAt(View view, float x, float y) {
             clickType = getClickType((MessageView) view, x, y);
             return clickType != CLICK_TYPE_NONE;
         }
 
         @Override
-        public void onClickAt (View view, float x, float y) {
+        public void onClickAt(View view, float x, float y) {
             switch (clickType) {
                 case CLICK_TYPE_REPLY: {
                     if (replyData != null && replyData.hasValidMessage()) {
@@ -2376,11 +2388,11 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     });
 
-    protected final void highlightOtherMessage (long otherMessageId) {
+    protected final void highlightOtherMessage(long otherMessageId) {
         manager.controller().highlightMessage(new MessageId(msg.chatId, otherMessageId), toMessageId());
     }
 
-    public boolean onTouchEvent (MessageView view, MotionEvent e) {
+    public boolean onTouchEvent(MessageView view, MotionEvent e) {
     /*if ((flags & FLAG_HEADER_ENABLED) == 0 && (msg.forwardInfo == null || forwardInfo == null) && replyData == null && (inlineKeyboard == null || inlineKeyboard.isEmpty())) {
       return false;
     }*/
@@ -2415,14 +2427,14 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
     // Header
 
-    public void updateDate () {
+    public void updateDate() {
         setDate(genDate());
         if (useBubbles() || (flags & FLAG_HEADER_ENABLED) != 0) {
             layoutInfo();
         }
     }
 
-    private void setDate (String date) {
+    private void setDate(String date) {
         this.date = date;
         boolean needFakeBold = Text.needFakeBold(date);
         this.flags = BitwiseUtils.setFlag(flags, FLAG_DATE_FAKE_BOLD, needFakeBold);
@@ -2431,11 +2443,11 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         this.pDateWidth = StringUtils.isEmpty(date) ? 0 : (int) U.measureText(date, paint);
     }
 
-    protected final boolean alignReplyHorizontally () {
+    protected final boolean alignReplyHorizontally() {
         return false;
     }
 
-    private void buildHeader () {
+    private void buildHeader() {
         int currentWidth = this.width;
 
         if ((flags & FLAG_HEADER_ENABLED) != 0 || useBubbles()) {
@@ -2468,7 +2480,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public TdApi.Message findReplyMarkupMessage () {
+    public TdApi.Message findReplyMarkupMessage() {
         synchronized (this) {
             if (combinedMessages != null && !combinedMessages.isEmpty()) {
                 TdApi.Message markup = null;
@@ -2486,7 +2498,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return msg;
     }
 
-    private void buildMarkup () {
+    private void buildMarkup() {
         TdApi.Message replyMarkupMessage = findReplyMarkupMessage();
         if (replyMarkupMessage != null && replyMarkupMessage.replyMarkup != null && replyMarkupMessage.replyMarkup.getConstructor() == TdApi.ReplyMarkupInlineKeyboard.CONSTRUCTOR) {
             if (inlineKeyboard == null) {
@@ -2505,7 +2517,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public final boolean forceForwardedInfo () {
+    public final boolean forceForwardedInfo() {
         return msg.forwardInfo != null && !isOutgoing() && (
                 BitwiseUtils.getFlag(flags, FLAG_SELF_CHAT) || isChannelAutoForward() ||
                         msg.forwardInfo.origin.getConstructor() == TdApi.MessageForwardOriginMessageImport.CONSTRUCTOR ||
@@ -2513,7 +2525,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
                         isRepliesChat());
     }
 
-    public final boolean isChannelAutoForward () {
+    public final boolean isChannelAutoForward() {
         return (msg.forwardInfo != null && msg.forwardInfo.origin.getConstructor() == TdApi.MessageForwardOriginChannel.CONSTRUCTOR &&
                 msg.forwardInfo.fromChatId == ((TdApi.MessageForwardOriginChannel) msg.forwardInfo.origin).chatId &&
                 msg.senderId.getConstructor() == TdApi.MessageSenderChat.CONSTRUCTOR &&
@@ -2521,11 +2533,11 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         );
     }
 
-    public final boolean isRepliesChat () {
+    public final boolean isRepliesChat() {
         return tdlib.isRepliesChat(msg.chatId);
     }
 
-    private void layoutAvatar () {
+    private void layoutAvatar() {
         if (useBubbles() && !needAvatar()) {
             hAvatar = null;
             return;
@@ -2548,7 +2560,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     protected static final float LETTERS_SIZE = 16f;
     protected static final float LETTERS_SIZE_SMALL = 15f;
 
-    private boolean onNameClick (View view, Text text, TextPart part, @Nullable TdlibUi.UrlOpenParameters openParameters) {
+    private boolean onNameClick(View view, Text text, TextPart part, @Nullable TdlibUi.UrlOpenParameters openParameters) {
         if (part.getEntity() != null && part.getEntity().getTag() instanceof Long) {
             manager.controller().setInputInlineBot(msg.viaBotUserId, viaBotUsername);
             return true;
@@ -2557,9 +2569,9 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    private boolean openProfile (View view, @Nullable Text text, TextPart part, @Nullable TdlibUi.UrlOpenParameters openParameters, @Nullable Receiver receiver) {
+    private boolean openProfile(View view, @Nullable Text text, TextPart part, @Nullable TdlibUi.UrlOpenParameters openParameters, @Nullable Receiver receiver) {
         if (forceForwardedInfo()) {
-            forwardInfo.open(view, text, part,openParameters, receiver);
+            forwardInfo.open(view, text, part, openParameters, receiver);
         } else if (sender.isUser()) {
             tdlib.ui().openPrivateProfile(controller(), sender.getUserId(), openParameters);
         } else if (sender.isChat()) {
@@ -2570,7 +2582,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return true;
     }
 
-    private boolean onForwardClick (View view, Text text, TextPart part, @Nullable TdlibUi.UrlOpenParameters openParameters) {
+    private boolean onForwardClick(View view, Text text, TextPart part, @Nullable TdlibUi.UrlOpenParameters openParameters) {
         if (part.getEntity() == null && text.getEntityCount() == 1)
             return false;
         if (part.getEntity() != null && part.getEntity().getTag() instanceof Long) {
@@ -2581,11 +2593,11 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return true;
     }
 
-    public TdlibUi.UrlOpenParameters openParameters () {
+    public TdlibUi.UrlOpenParameters openParameters() {
         return new TdlibUi.UrlOpenParameters().sourceMessage(this);
     }
 
-    private Text makeChatMark (int maxWidth) {
+    private Text makeChatMark(int maxWidth) {
         return new Text.Builder(Lang.getString(sender.isFake() ? R.string.FakeMark : R.string.ScamMark), maxWidth, Paints.robotoStyleProvider(10f), TextColorSets.Regular.NEGATIVE)
                 .singleLine()
                 .allBold()
@@ -2593,7 +2605,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
                 .build();
     }
 
-    private Text makeName (String authorName, boolean available, boolean isPsa, boolean hideName, long viaBotUserId, int maxWidth, boolean isForward) {
+    private Text makeName(String authorName, boolean available, boolean isPsa, boolean hideName, long viaBotUserId, int maxWidth, boolean isForward) {
         if (maxWidth <= 0)
             return null;
         boolean hasBot = viaBotUserId != 0;
@@ -2622,17 +2634,17 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
             int colorId = TD.getNameColorId(hAvatarPlaceholder.metadata.colorId);
             colorTheme = new TextColorSetOverride(getChatAuthorColorSet()) {
                 @Override
-                public int clickableTextColor (boolean isPressed) {
+                public int clickableTextColor(boolean isPressed) {
                     return Theme.getColor(colorId);
                 }
 
                 @Override
-                public int backgroundColor (boolean isPressed) {
+                public int backgroundColor(boolean isPressed) {
                     return isPressed ? ColorUtils.alphaColor(.2f, Theme.getColor(colorId)) : 0;
                 }
 
                 @Override
-                public int backgroundColorId (boolean isPressed) {
+                public int backgroundColorId(boolean isPressed) {
                     return isPressed ? colorId : 0;
                 }
             };
@@ -2648,7 +2660,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
                 .build();
     }
 
-    private void layoutInfo () {
+    private void layoutInfo() {
         boolean isPsa = isPsa() && forceForwardedInfo();
 
         if (useBubbles()) {
@@ -2747,7 +2759,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    private void loadForward () {
+    private void loadForward() {
         if (msg.forwardInfo == null) {
             return;
         }
@@ -2777,7 +2789,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         forwardInfo.load();
     }
 
-    void rebuildForward () {
+    void rebuildForward() {
         if ((flags & FLAG_LAYOUT_BUILT) != 0) {
             if (useBubbles() && allowMessageHorizontalExtend()) {
                 rebuildLayout();
@@ -2787,7 +2799,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    private void buildForward () {
+    private void buildForward() {
         if (!useForward() || forwardInfo == null) {
             return;
         }
@@ -2816,29 +2828,29 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    private int getForwardAuthorNameLeft () {
+    private int getForwardAuthorNameLeft() {
         return useBubbles() ? getInternalBubbleStartX() + Screen.dp(11f) : xfContentLeft;
     }
 
-    private void loadReply () {
+    private void loadReply() {
         replyData = new ReplyComponent(this);
         replyData.setViewProvider(currentViews);
         replyData.load();
     }
 
-    public final void replaceReplyContent (long messageId, TdApi.MessageContent newContent) {
+    public final void replaceReplyContent(long messageId, TdApi.MessageContent newContent) {
         if (msg.replyToMessageId == messageId && replyData != null) {
             replyData.replaceMessageContent(messageId, newContent);
         }
     }
 
-    public final void removeReply (long messageId) {
+    public final void removeReply(long messageId) {
         if (msg.replyToMessageId == messageId && replyData != null) {
             replyData.deleteMessageContent(messageId);
         }
     }
 
-    private void buildReply () {
+    private void buildReply() {
         if (replyData != null) {
             int maxWidth = allowMessageHorizontalExtend() ? pRealContentMaxWidth : getContentWidth();
             if (alignReplyHorizontally()) {
@@ -2850,47 +2862,47 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
     // Bubble stuff
 
-    private void checkEdges () {
+    private void checkEdges() {
         if (useBubbles()) {
             buildBubble(false);
         }
     }
 
-    protected boolean useCircleBubble () {
+    protected boolean useCircleBubble() {
         return false;
     }
 
-    private boolean allowMessageHorizontalExtend () {
+    private boolean allowMessageHorizontalExtend() {
         return /*msg.forwardInfo != null ||*/ !useBubbles() || allowBubbleHorizontalExtend();
     }
 
-    protected boolean allowBubbleHorizontalExtend () {
+    protected boolean allowBubbleHorizontalExtend() {
         return true;
     }
 
     private int bubbleTimePartWidth, bubbleInnerWidth;
 
-    protected final int getBubbleTimePartWidth () {
+    protected final int getBubbleTimePartWidth() {
         return useBubbles() && useBubbleTime() ? bubbleTimePartWidth : 0;
     }
 
-    protected final boolean moveBubbleTimePartToLeft () {
+    protected final boolean moveBubbleTimePartToLeft() {
         return Lang.rtl();
     }
 
-    protected final boolean needExpandBubble (int bottomLineContentWidth) {
+    protected final boolean needExpandBubble(int bottomLineContentWidth) {
         return bottomLineContentWidth + bubbleTimePartWidth > (allowBubbleHorizontalExtend() ? pRealContentMaxWidth : Math.min(pRealContentMaxWidth, bubbleInnerWidth));
     }
 
-    protected float getBubbleExpandFactor () {
+    protected float getBubbleExpandFactor() {
         throw new RuntimeException();
     }
 
-    protected int getAnimatedBottomLineWidth () {
+    protected int getAnimatedBottomLineWidth() {
         throw new RuntimeException();
     }
 
-    protected final void buildBubble (boolean force) {
+    protected final void buildBubble(boolean force) {
         if (useBubbles()) {
             final boolean needBubble = useBubble();
 
@@ -3013,7 +3025,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    private void notifyBubbleChanged () {
+    private void notifyBubbleChanged() {
         int oldHeight = height;
         height = computeHeight();
         onBubbleHasChanged();
@@ -3023,31 +3035,32 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    protected void onBubbleHasChanged () {
+    protected void onBubbleHasChanged() {
         // override
     }
 
-    public @Nullable Path getBubblePath () {
+    public @Nullable
+    Path getBubblePath() {
         return disableBubble() ? null : bubblePath;
     }
 
-    public Path getBubbleClipPath () {
+    public Path getBubbleClipPath() {
         return bubbleClipPath;
     }
 
-    protected static int getBubbleTimePartHeight () {
+    protected static int getBubbleTimePartHeight() {
         return Screen.dp(16f);
     }
 
-    protected int getAbsolutelyRealRightContentEdge (View view, int timePartWidth) {
+    protected int getAbsolutelyRealRightContentEdge(View view, int timePartWidth) {
         return getActualRightContentEdge() - timePartWidth;
     }
 
-    protected int getBubbleTimePartOffsetY () {
+    protected int getBubbleTimePartOffsetY() {
         return Screen.dp(8f);
     }
 
-    protected int getTimePartTextColor () {
+    protected int getTimePartTextColor() {
         if (!useBubbles()) {
             return getDecentColor();
         }
@@ -3062,7 +3075,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    protected int getTimePartIconColorId () {
+    protected int getTimePartIconColorId() {
         if (!useBubbles()) {
             return getDecentIconColorId();
         }
@@ -3085,12 +3098,12 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     private int computeReactionWidth() {
         int reactionWidth = 0;
         if (reactions != null && reactions.length > 0) {
-            reactionWidth = Screen.dp(20);
+            reactionWidth = Screen.dp(20) * reactions.length + Screen.dp(2) * reactions.length;
         }
         return reactionWidth;
     }
 
-    protected void drawBubbleTimePart (Canvas c, MessageView view) {
+    protected void drawBubbleTimePart(Canvas c, MessageView view) {
         boolean isTransparent = !useBubble() || useCircleBubble();
         boolean isWhite = isTransparent || (drawBubbleTimeOverContent() && !useForward());
 
@@ -3172,6 +3185,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         isPinned.draw(c, startX, counterY, Gravity.LEFT, 1f, view, iconColorId);
         startX += isPinned.getScaledWidth(Screen.dp(COUNTER_ICON_MARGIN));
 
+        int tempX = startX;
         if (shouldShowEdited()) {
             if (isBeingEdited()) {
                 Drawables.draw(c, Icons.getClockIcon(iconColorId), startX - Screen.dp(6f), startY + Screen.dp(4.5f) - Screen.dp(5f), iconPaint);
@@ -3182,7 +3196,6 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
 
         int tempY = startY + Screen.dp(15.5f);
-        int tempX = startX;
         if (time != null) {
             c.drawText(time, startX, startY + Screen.dp(15.5f), Paints.colorPaint(mTimeBubble(), textColor));
             startX += pTimeWidth;
@@ -3213,7 +3226,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         drawReaction(c, view, tempX, tempY);
     }
 
-    protected final int computeBubbleTimePartWidth (boolean includePadding) {
+    protected final int computeBubbleTimePartWidth(boolean includePadding) {
         int width = 0;
     /*if (shouldShowTicks()) {
       width += Screen.dp(3f) + Icons.getSingleTick().getWidth() + Screen.dp(3f);
@@ -3253,13 +3266,15 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return width;
     }
 
-    protected boolean drawBubbleTimeOverContent () {
+    protected boolean drawBubbleTimeOverContent() {
         return false;
     }
-    protected final boolean needTopContentRounding () {
+
+    protected final boolean needTopContentRounding() {
         return useBubbleName() || useForward() || replyData != null;
     }
-    protected final boolean needBottomContentRounding () {
+
+    protected final boolean needBottomContentRounding() {
         return useForward() || drawBubbleTimeOverContent() || hasFooter();
     }
 
@@ -3267,29 +3282,29 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     protected static final int BOTTOM_LINE_KEEP_WIDTH = -2;
     protected static final int BOTTOM_LINE_DEFINE_BY_FACTOR = -3;
 
-    protected int getBottomLineContentWidth () {
+    protected int getBottomLineContentWidth() {
         return BOTTOM_LINE_EXPAND_HEIGHT;
     }
 
-    public float getBubbleTopRightRadius () {
+    public float getBubbleTopRightRadius() {
         return topRightRadius;
     }
 
-    public float getBubbleTopLeftRadius () {
+    public float getBubbleTopLeftRadius() {
         return topLeftRadius;
     }
 
-    public float getBubbleBottomLeftRadius () {
+    public float getBubbleBottomLeftRadius() {
         return bottomLeftRadius;
     }
 
-    public float getBubbleBottomRightRadius () {
+    public float getBubbleBottomRightRadius() {
         return bottomRightRadius;
     }
 
     // Image receivers
 
-    public final void layoutAvatar (MessageView view, ImageReceiver receiver) {
+    public final void layoutAvatar(MessageView view, ImageReceiver receiver) {
         int left, top, size;
         if (useBubbles()) {
             left = xBubbleAvatarLeft;
@@ -3306,7 +3321,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         receiver.setBounds(left, top, left + size, top + size);
     }
 
-    public final void requestReply (DoubleImageReceiver receiver) {
+    public final void requestReply(DoubleImageReceiver receiver) {
         if (replyData != null) {
             replyData.requestPreview(receiver);
         } else {
@@ -3314,7 +3329,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public final void requestAvatar (ImageReceiver receiver) {
+    public final void requestAvatar(ImageReceiver receiver) {
         if ((flags & FLAG_HEADER_ENABLED) != 0 && hAvatar != null && needAvatar()) {
             receiver.requestFile(hAvatar);
         } else {
@@ -3323,113 +3338,112 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     }
 
 
-
     // public static final float IMAGE_CONTENT_DEFAULT_RADIUS = 3f;
     // public static final float BUBBLE_MERGE_RADIUS = 6f;
     // public static final float BUBBLE_DEFAULT_RADIUS = BUBBLE_BIG_RADIUS_AVAILABLE ? 18f : BUBBLE_MERGE_RADIUS;
 
-    public int getImageContentRadius (boolean isPreview) {
+    public int getImageContentRadius(boolean isPreview) {
         return 0;
     }
 
-    public void requestImage (ImageReceiver receiver) {
+    public void requestImage(ImageReceiver receiver) {
         receiver.requestFile(null);
     }
 
-    public void requestGif (GifReceiver receiver) {
+    public void requestGif(GifReceiver receiver) {
         receiver.requestFile(null);
     }
 
-    public void requestPreview (DoubleImageReceiver receiver) {
+    public void requestPreview(DoubleImageReceiver receiver) {
         receiver.clear();
     }
 
-    public void requestMediaContent (ComplexReceiver receiver, boolean invalidate, int invalidateArg) {
+    public void requestMediaContent(ComplexReceiver receiver, boolean invalidate, int invalidateArg) {
         receiver.clear();
     }
 
-    public void invalidateMediaContent (ComplexReceiver receiver, long messageId) {
+    public void invalidateMediaContent(ComplexReceiver receiver, long messageId) {
         receiver.clear();
     }
 
     // Getters
 
-    public boolean onMessageClick (MessageView v, MessagesController c) {
+    public boolean onMessageClick(MessageView v, MessagesController c) {
         // TODO
         return /* isEventLog() */ false;
     }
 
-    public int getWidth () {
+    public int getWidth() {
         return width;
     }
 
-    public int getHeight () {
+    public int getHeight() {
         return height;
     }
 
-    public int getContentX () {
+    public int getContentX() {
         return pContentX;
     }
 
-    public int getActualRightContentEdge () {
+    public int getActualRightContentEdge() {
         return alignBubbleRight() ? width - leftContentEdge : rightContentEdge;
     }
 
-    public int getActualLeftContentEdge () {
+    public int getActualLeftContentEdge() {
         return alignBubbleRight() ? width - rightContentEdge : leftContentEdge;
     }
 
-    public int getBottomContentEdge () {
+    public int getBottomContentEdge() {
         return bottomContentEdge;
     }
 
-    public int getTopContentEdge () {
+    public int getTopContentEdge() {
         return topContentEdge;
     }
 
-    public final int centerX () {
+    public final int centerX() {
         return useBubbles() ? getActualLeftContentEdge() + (getActualRightContentEdge() - getActualLeftContentEdge()) / 2 : getContentX() + getContentWidth() / 2;
     }
 
-    public final int centerY () {
+    public final int centerY() {
         return useBubbles() ? (int) bubblePathRect.centerY() : getContentY() + getContentHeight() / 2;
     }
 
-    public boolean isInsideBubble (float x, float y) {
+    public boolean isInsideBubble(float x, float y) {
         return x >= getActualLeftContentEdge() && x < getActualRightContentEdge() && y >= topContentEdge && y < bottomContentEdge;
     }
 
-    public int getRealContentX () {
+    public int getRealContentX() {
         return pRealContentX;
     }
 
-    public int getRealContentMaxWidth () {
+    public int getRealContentMaxWidth() {
         return pRealContentMaxWidth;
     }
 
-    public final int getContentY () {
+    public final int getContentY() {
         return pContentY;
     }
 
-    private int getForwardLeft () {
+    private int getForwardLeft() {
         return useBubbles() ? getInternalBubbleStartX() : xContentLeft;
     }
 
-    private int getForwardTop () {
+    private int getForwardTop() {
         return useBubbles() ?
                 pContentY - getBubbleForwardOffset() :
                 ((flags & FLAG_HEADER_ENABLED) != 0 ? xContentTop - Screen.dp(3f) : xPaddingTop - Screen.dp(3f)) + getHeaderPadding();
     }
 
-    private static int getForwardHeaderHeight () {
+    private static int getForwardHeaderHeight() {
         return Screen.dp(26f);
     }
 
-    private int getForwardHeight () {
+    private int getForwardHeight() {
         return getContentHeight() + getForwardHeaderHeight() + (isPsa() && !forceForwardedInfo() ? getPsaTitleHeight() : 0);
     }
 
-    public int getHeaderPadding () {
+    public int getHeaderPadding() {
         int result;
         if ((flags & FLAG_SHOW_BADGE) != 0) {
             if ((flags & FLAG_SHOW_DATE) != 0) {
@@ -3449,15 +3463,15 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
     // Data getters
 
-    public TdlibSender getSender () {
+    public TdlibSender getSender() {
         return sender;
     }
 
-    public TdApi.Message getMessage () {
+    public TdApi.Message getMessage() {
         return msg;
     }
 
-    public TdApi.Message getMessage (long messageId) {
+    public TdApi.Message getMessage(long messageId) {
         synchronized (this) {
             if (combinedMessages != null) {
                 for (TdApi.Message message : combinedMessages) {
@@ -3470,7 +3484,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return msg.id == messageId ? msg : null;
     }
 
-    public int getMessageCountBetween (long afterMessageId, long beforeMessageId) {
+    public int getMessageCountBetween(long afterMessageId, long beforeMessageId) {
         synchronized (this) {
             if (combinedMessages != null && !combinedMessages.isEmpty()) {
                 int count = 0;
@@ -3489,7 +3503,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return 0;
     }
 
-    public int getMessageCount () {
+    public int getMessageCount() {
         synchronized (this) {
             if (combinedMessages != null && !combinedMessages.isEmpty()) {
                 return combinedMessages.size();
@@ -3504,7 +3518,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     public static final int MESSAGE_ALBUM_TYPE_PLAYLIST = 3;
     public static final int MESSAGE_ALBUM_TYPE_FILES = 4;
 
-    public int getMessageAlbumType () {
+    public int getMessageAlbumType() {
         SparseIntArray counters = new SparseIntArray();
         iterate(message -> {
             int key = MESSAGE_ALBUM_TYPE_MIXED;
@@ -3529,7 +3543,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return counters.valueAt(0) > 1 ? counters.keyAt(0) : MESSAGE_ALBUM_TYPE_NONE;
     }
 
-    public TdApi.Message[] getAllMessages () {
+    public TdApi.Message[] getAllMessages() {
         synchronized (this) {
             if (combinedMessages != null && !combinedMessages.isEmpty()) {
                 TdApi.Message[] result = new TdApi.Message[combinedMessages.size()];
@@ -3537,14 +3551,14 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
                 return result;
             }
         }
-        return new TdApi.Message[] {msg};
+        return new TdApi.Message[]{msg};
     }
 
-    protected final ArrayList<TdApi.Message> getCombinedMessagesUnsafely () {
+    protected final ArrayList<TdApi.Message> getCombinedMessagesUnsafely() {
         return combinedMessages;
     }
 
-    public void iterate (RunnableData<TdApi.Message> callback, boolean reverse) {
+    public void iterate(RunnableData<TdApi.Message> callback, boolean reverse) {
         synchronized (this) {
             if (combinedMessages != null && !combinedMessages.isEmpty()) {
                 if (reverse) {
@@ -3563,11 +3577,11 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public TGSource getForwardInfo () {
+    public TGSource getForwardInfo() {
         return forwardInfo;
     }
 
-    public final String getSourceName () {
+    public final String getSourceName() {
         if (forwardInfo != null) {
             if (forwardInfo.isReady()) {
                 return forwardInfo.getAuthorName();
@@ -3584,11 +3598,11 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return sender.getNameShort();
     }
 
-    public final String getInReplyTo () {
+    public final String getInReplyTo() {
         return replyData != null ? replyData.getAuthor() : null;
     }
 
-    public final int getViewCount () {
+    public final int getViewCount() {
         if (isSending() || isFailed()) {
             return 0;
         }
@@ -3596,7 +3610,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return info != null ? info.viewCount : 0;
     }
 
-    public final int getReplyCount () {
+    public final int getReplyCount() {
         if (!Config.COMMENTS_SUPPORTED || isThreadHeader()) {
             return 0;
         }
@@ -3605,20 +3619,20 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return replyInfo != null ? replyInfo.replyCount : 0;
     }
 
-    public final int getForwardCount () {
+    public final int getForwardCount() {
         TdApi.MessageInteractionInfo info = msg.interactionInfo;
         return info != null ? info.forwardCount : 0;
     }
 
-    public final long getId () {
+    public final long getId() {
         return msg.id;
     }
 
-    public final MessageId toMessageId () {
+    public final MessageId toMessageId() {
         return new MessageId(msg.chatId, msg.id, getOtherMessageIds(msg.id));
     }
 
-    public final void getIds (@NonNull LongList ids, long afterMessageId, long beforeMessageId) {
+    public final void getIds(@NonNull LongList ids, long afterMessageId, long beforeMessageId) {
         synchronized (this) {
             if (combinedMessages != null && !combinedMessages.isEmpty()) {
                 for (TdApi.Message msg : combinedMessages) {
@@ -3634,7 +3648,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public final void getIds (@NonNull LongSet ids) {
+    public final void getIds(@NonNull LongSet ids) {
         synchronized (this) {
             if (combinedMessages != null && !combinedMessages.isEmpty()) {
                 ids.ensureCapacity(ids.size() + combinedMessages.size());
@@ -3647,7 +3661,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         ids.add(msg.id);
     }
 
-    public final long[] getIds () {
+    public final long[] getIds() {
         synchronized (this) {
             if (combinedMessages != null) {
                 long[] ids = new long[combinedMessages.size()];
@@ -3659,16 +3673,16 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
                 Arrays.sort(ids);
                 return ids;
             } else {
-                return new long[] {msg.id};
+                return new long[]{msg.id};
             }
         }
     }
 
-    public final long getMessageThreadId () {
+    public final long getMessageThreadId() {
         return msg.messageThreadId;
     }
 
-    public final long[] getOtherMessageIds (long exceptMessageId) {
+    public final long[] getOtherMessageIds(long exceptMessageId) {
         synchronized (this) {
             if (combinedMessages != null && combinedMessages.size() > 1) {
                 long[] result = new long[combinedMessages.size() - 1];
@@ -3686,7 +3700,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return null;
     }
 
-    public final long getSmallestId () {
+    public final long getSmallestId() {
         synchronized (this) {
             if (combinedMessages != null && !combinedMessages.isEmpty()) {
                 return combinedMessages.get(0).id;
@@ -3695,7 +3709,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return msg.id;
     }
 
-    public final long getBiggestId () {
+    public final long getBiggestId() {
         synchronized (this) {
             if (combinedMessages != null && !combinedMessages.isEmpty()) {
                 return combinedMessages.get(combinedMessages.size() - 1).id;
@@ -3704,7 +3718,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return msg.id;
     }
 
-    public final TdApi.Message getOldestMessage () {
+    public final TdApi.Message getOldestMessage() {
         synchronized (this) {
             if (combinedMessages != null && !combinedMessages.isEmpty()) {
                 return combinedMessages.get(0);
@@ -3713,7 +3727,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return msg;
     }
 
-    public final TdApi.Message getNewestMessage () {
+    public final TdApi.Message getNewestMessage() {
         synchronized (this) {
             if (combinedMessages != null && !combinedMessages.isEmpty()) {
                 return combinedMessages.get(combinedMessages.size() - 1);
@@ -3722,7 +3736,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return msg;
     }
 
-    public final boolean containsUnreadMention () {
+    public final boolean containsUnreadMention() {
         synchronized (this) {
             if (combinedMessages != null) {
                 for (int i = combinedMessages.size() - 1; i >= 0; i--) {
@@ -3735,7 +3749,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return msg.containsUnreadMention;
     }
 
-    public final void readMention (long messageId) {
+    public final void readMention(long messageId) {
         synchronized (this) {
             if (combinedMessages != null) {
                 for (TdApi.Message message : combinedMessages) {
@@ -3751,24 +3765,24 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public final long getMediaGroupId () {
+    public final long getMediaGroupId() {
         return msg.mediaAlbumId;
     }
 
     private ArrayList<TdApi.Message> combinedMessages;
 
     @AnyThread
-    protected void onMessageCombinedWithOtherMessage (TdApi.Message otherMessage, boolean atBottom, boolean local) {
+    protected void onMessageCombinedWithOtherMessage(TdApi.Message otherMessage, boolean atBottom, boolean local) {
         // override
     }
 
     @UiThread
-    protected void onMessageCombinationRemoved (TdApi.Message message, int index) {
+    protected void onMessageCombinationRemoved(TdApi.Message message, int index) {
         // override
     }
 
     @AnyThread
-    public final boolean wouldCombineWith (TdApi.Message message) {
+    public final boolean wouldCombineWith(TdApi.Message message) {
         if (msg.mediaAlbumId == 0 || msg.mediaAlbumId != message.mediaAlbumId || msg.ttl != message.ttl || isHot() || isEventLog() || isSponsored()) {
             return false;
         }
@@ -3777,7 +3791,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     }
 
     @AnyThread
-    public final boolean combineWith (TdApi.Message message, boolean atBottom) {
+    public final boolean combineWith(TdApi.Message message, boolean atBottom) {
         if (!wouldCombineWith(message))
             return false;
         boolean local = (flags & FLAG_LAYOUT_BUILT) == 0;
@@ -3805,7 +3819,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return true;
     }
 
-    public final int getCombinedMessageCount () {
+    public final int getCombinedMessageCount() {
         synchronized (this) {
             return combinedMessages != null ? combinedMessages.size() : 0;
         }
@@ -3814,7 +3828,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     private static final int MESSAGE_INDEX_NOT_FOUND = -1;
     private static final int MESSAGE_INDEX_SELF = -2;
 
-    private int indexOfMessageInternal (long messageId) {
+    private int indexOfMessageInternal(long messageId) {
         if (combinedMessages != null) {
             int index = 0;
             for (TdApi.Message msg : combinedMessages) {
@@ -3835,7 +3849,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     public static final int REMOVE_COMBINATION = 2;
 
     @UiThread
-    public final int removeMessage (long messageId) {
+    public final int removeMessage(long messageId) {
         synchronized (this) {
             int index = indexOfMessageInternal(messageId);
             if (index >= 0) {
@@ -3858,13 +3872,13 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public final long getChatId () {
+    public final long getChatId() {
         return msg.chatId;
     }
 
     private TdApi.ChatAdministrator administrator;
 
-    private String getAdministratorSign () {
+    private String getAdministratorSign() {
         String result = null;
         if (isSponsored()) {
             return null;
@@ -3894,15 +3908,15 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return null;
     }
 
-    public final TdApi.ChatAdministrator getAdministrator () {
+    public final TdApi.ChatAdministrator getAdministrator() {
         return administrator;
     }
 
-    private boolean needAdminSign () {
+    private boolean needAdminSign() {
         return getAdministratorSign() != null;
     }
 
-    public final void setAdministratorSign (@Nullable TdApi.ChatAdministrator administrator) {
+    public final void setAdministratorSign(@Nullable TdApi.ChatAdministrator administrator) {
         final boolean isAdmin = (this.administrator != null || sender.isAnonymousGroupAdmin()) && !isOutgoing();
         final boolean nowIsAdmin = administrator != null;
         if (isAdmin != nowIsAdmin || isAdmin) {
@@ -3922,27 +3936,27 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public final int getDate () {
+    public final int getDate() {
         return msg.date;
     }
 
-    public final int getComparingDate () {
+    public final int getComparingDate() {
         return eventDate != 0 ? eventDate : msg.schedulingState != null ? (msg.schedulingState.getConstructor() == TdApi.MessageSchedulingStateSendAtDate.CONSTRUCTOR ? ((TdApi.MessageSchedulingStateSendAtDate) msg.schedulingState).sendDate : 0) : msg.date;
     }
 
-    public final boolean isSending () {
+    public final boolean isSending() {
         return msg.sendingState != null && msg.sendingState.getConstructor() == TdApi.MessageSendingStatePending.CONSTRUCTOR && !tdlib.qack().isMessageAcknowledged(msg.chatId, msg.id);
     }
 
-    public final boolean isPsa () {
+    public final boolean isPsa() {
         return msg.forwardInfo != null && !StringUtils.isEmpty(msg.forwardInfo.publicServiceAnnouncementType) && !sender.isUser();
     }
 
-    public boolean isSponsored () {
+    public boolean isSponsored() {
         return false;
     }
 
-    public final int getPinnedMessageCount () {
+    public final int getPinnedMessageCount() {
         if (isThreadHeader()) {
             return 0;
         }
@@ -3960,7 +3974,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return msg.isPinned ? 1 : 0;
     }
 
-    public final boolean isPinned () {
+    public final boolean isPinned() {
         if (isThreadHeader())
             return false;
         if (msg.isPinned)
@@ -3977,11 +3991,11 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return false;
     }
 
-    public final boolean isOld () {
+    public final boolean isOld() {
         return tdlib().timeElapsedSinceDate(getDate(), TimeUnit.SECONDS) >= TimeUnit.MINUTES.toMillis(5);
     }
 
-    public final boolean isChatMember () {
+    public final boolean isChatMember() {
         TdApi.Chat chat = tdlib.chat(getChatId());
         if (chat != null) {
             switch (chat.type.getConstructor()) {
@@ -3998,15 +4012,15 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return false;
     }
 
-    protected boolean isBeingEdited () {
+    protected boolean isBeingEdited() {
         return false; // override in children
     }
 
-    public final boolean isFailed () {
+    public final boolean isFailed() {
         return msg.sendingState != null && msg.sendingState.getConstructor() == TdApi.MessageSendingStateFailed.CONSTRUCTOR;
     }
 
-    public final boolean canResend () {
+    public final boolean canResend() {
         if (!(msg.sendingState instanceof TdApi.MessageSendingStateFailed) || !((TdApi.MessageSendingStateFailed) msg.sendingState).canRetry) {
             return false;
         }
@@ -4022,7 +4036,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return true;
     }
 
-    public final String[] getFailureMessages () {
+    public final String[] getFailureMessages() {
         Set<String> errors = new HashSet<>();
         synchronized (this) {
             if (combinedMessages != null && !combinedMessages.isEmpty()) {
@@ -4042,59 +4056,59 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return errors.isEmpty() ? null : errors.toArray(new String[0]);
     }
 
-    public final boolean isNotSent () {
+    public final boolean isNotSent() {
         return msg.sendingState != null;
     }
 
-    public final boolean isAnimating () {
+    public final boolean isAnimating() {
         return false; // FIXME return correct animation state
     }
 
-    public final boolean canBeDeletedForSomebody () {
+    public final boolean canBeDeletedForSomebody() {
         return (msg.canBeDeletedOnlyForSelf || msg.canBeDeletedForAllUsers) && allowInteraction();
     }
 
-    public final boolean canBeReported () {
+    public final boolean canBeReported() {
         return !isSelfChat() && msg.sendingState == null && !msg.isOutgoing && tdlib.canReportChatSpam(msg.chatId) && !isEventLog();
     }
 
-    public final boolean canViewStatistics () {
+    public final boolean canViewStatistics() {
         return msg.canGetStatistics;
     }
 
-    public final boolean canGetViewers () {
+    public final boolean canGetViewers() {
         return msg.canGetViewers;
     }
 
-    public final boolean canBeDeletedOnlyForSelf () {
+    public final boolean canBeDeletedOnlyForSelf() {
         return msg.canBeDeletedOnlyForSelf;
     }
 
-    public final boolean canBeDeletedForEveryone () {
+    public final boolean canBeDeletedForEveryone() {
         return msg.canBeDeletedForAllUsers;
     }
 
-    public final boolean canBeSelected () {
+    public final boolean canBeSelected() {
         return (!isNotSent() || canResend()) && (flags & FLAG_UNSUPPORTED) == 0 && !(this instanceof TGMessageChat) && allowInteraction() && !isSponsored();
     }
 
-    public boolean canEditText () {
+    public boolean canEditText() {
         return msg.canBeEdited && TD.canEditText(msg.content) && allowInteraction() && messagesController().canWriteMessages();
     }
 
-    public boolean canBeForwarded () {
+    public boolean canBeForwarded() {
         return msg.canBeForwarded && (msg.content.getConstructor() != TdApi.MessageLocation.CONSTRUCTOR || ((TdApi.MessageLocation) msg.content).expiresIn == 0) && !isEventLog();
     }
 
-    public boolean canBeSaved () {
+    public boolean canBeSaved() {
         return msg.canBeSaved;
     }
 
-    public boolean isUnread () {
+    public boolean isUnread() {
         return (flags & MESSAGE_FLAG_READ) == 0 || (msg.sendingState != null);
     }
 
-    public boolean checkIsUnread (boolean needMention) {
+    public boolean checkIsUnread(boolean needMention) {
         if (needMention && msg.containsUnreadMention)
             return true;
         TdApi.Chat chat = getChat();
@@ -4105,36 +4119,36 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return chat != null && (msg.isOutgoing ? chat.lastReadOutboxMessageId : chat.lastReadInboxMessageId) < getBiggestId();
     }
 
-    public boolean isChannel () {
+    public boolean isChannel() {
         return msg.isChannelPost;
     }
 
-    public final boolean isSecretChat () {
+    public final boolean isSecretChat() {
         return ChatId.isSecret(msg.chatId);
     }
 
-    public boolean isGame () {
+    public boolean isGame() {
         return msg.content.getConstructor() != TdApi.MessageGame.CONSTRUCTOR;
     }
 
-    public boolean isOutgoing () {
+    public boolean isOutgoing() {
         return msg.isOutgoing && !isEventLog();
     }
 
     @CallSuper
-    public void markAsBeingAdded (boolean isBeingAdded) {
+    public void markAsBeingAdded(boolean isBeingAdded) {
         this.flags = BitwiseUtils.setFlag(flags, FLAG_BEING_ADDED, isBeingAdded);
     }
 
-    public final boolean isBeingAdded () {
+    public final boolean isBeingAdded() {
         return BitwiseUtils.getFlag(flags, FLAG_BEING_ADDED);
     }
 
-    public boolean canMarkAsViewed () {
+    public boolean canMarkAsViewed() {
         return msg.id != 0 && msg.chatId != 0 && (flags & FLAG_VIEWED) == 0;
     }
 
-    public boolean markAsViewed () {
+    public boolean markAsViewed() {
         if (canMarkAsViewed()) {
             flags |= FLAG_VIEWED;
             if (msg.containsUnreadMention)
@@ -4144,15 +4158,15 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return false;
     }
 
-    public boolean needRefreshViewCount () {
+    public boolean needRefreshViewCount() {
         return viewCounter != null && !isSending();
     }
 
-    public void markAsUnread () {
+    public void markAsUnread() {
         flags &= ~FLAG_VIEWED;
     }
 
-    public boolean isEdited () {
+    public boolean isEdited() {
         if (msg.editDate > 0) {
             return true;
         }
@@ -4168,11 +4182,11 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return false;
     }
 
-    protected boolean replaceTimeWithEditTime () {
+    protected boolean replaceTimeWithEditTime() {
         return false;
     }
 
-    public int getMergeIndex () {
+    public int getMergeIndex() {
         if ((flags & FLAG_HEADER_ENABLED) != 0) {
             return 0;
         } else {
@@ -4180,7 +4194,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public int getMergeTime () {
+    public int getMergeTime() {
         if ((flags & FLAG_HEADER_ENABLED) != 0 || mergeTime == 0) {
             return msg.date;
         } else {
@@ -4188,23 +4202,25 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public boolean isForward () {
+    public boolean isForward() {
         return msg.forwardInfo != null;
     }
 
     // Setters
 
-    private @Nullable TdApi.Chat chat;
+    private @Nullable
+    TdApi.Chat chat;
 
-    public @Nullable TdApi.Chat getChat () {
+    public @Nullable
+    TdApi.Chat getChat() {
         return chat;
     }
 
-    public long getChannelId () {
+    public long getChannelId() {
         return ChatId.toSupergroupId(msg.chatId);
     }
 
-    private void setChatData (TdApi.Chat chat) {
+    private void setChatData(TdApi.Chat chat) {
         this.chat = chat;
         int flags = this.flags;
         flags = BitwiseUtils.setFlag(flags, FLAG_NO_UNREAD, needNoUnread());
@@ -4227,7 +4243,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    private boolean needNoUnread () {
+    private boolean needNoUnread() {
         if (chat != null) {
             switch (chat.type.getConstructor()) {
                 case TdApi.ChatTypePrivate.CONSTRUCTOR: {
@@ -4239,15 +4255,15 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return false;
     }
 
-    private boolean isSelfChat () {
+    private boolean isSelfChat() {
         return chat != null && chat.type.getConstructor() == TdApi.ChatTypePrivate.CONSTRUCTOR && tdlib.isSelfUserId(((TdApi.ChatTypePrivate) chat.type).userId);
     }
 
-    public final boolean needMessageButton () {
-        return ((flags & FLAG_SELF_CHAT) != 0 || isChannelAutoForward() || isRepliesChat()) && msg.forwardInfo != null && msg.forwardInfo.fromChatId != 0 &&  msg.forwardInfo.fromMessageId != 0 &&  msg.forwardInfo.fromChatId != msg.chatId;
+    public final boolean needMessageButton() {
+        return ((flags & FLAG_SELF_CHAT) != 0 || isChannelAutoForward() || isRepliesChat()) && msg.forwardInfo != null && msg.forwardInfo.fromChatId != 0 && msg.forwardInfo.fromMessageId != 0 && msg.forwardInfo.fromChatId != msg.chatId;
     }
 
-    public final void openSourceMessage () {
+    public final void openSourceMessage() {
         if (msg.forwardInfo != null) {
             if (isRepliesChat()) {
                 openMessageThread(new MessageId(msg.forwardInfo.fromChatId, msg.forwardInfo.fromMessageId));
@@ -4257,11 +4273,11 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public boolean noUnread () {
+    public boolean noUnread() {
         return (flags & FLAG_NO_UNREAD) != 0 || isDemoChat();
     }
 
-    public TdApi.Message findDescendantOrSelf (long messageId, long[] otherMessageIds) {
+    public TdApi.Message findDescendantOrSelf(long messageId, long[] otherMessageIds) {
         if (msg.id == messageId || (otherMessageIds != null && ArrayUtils.contains(otherMessageIds, messageId))) {
             return msg;
         }
@@ -4277,24 +4293,25 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return null;
     }
 
-    public boolean isDescendantOrSelf (long messageId, long[] otherMessageIds) {
+    public boolean isDescendantOrSelf(long messageId, long[] otherMessageIds) {
         return findDescendantOrSelf(messageId, otherMessageIds) != null;
     }
 
-    public boolean isDescendantOrSelf (long messageId) {
+    public boolean isDescendantOrSelf(long messageId) {
         return findDescendantOrSelf(messageId) != null;
     }
 
-    public @Nullable TdApi.Message findDescendantOrSelf (long messageId) {
+    public @Nullable
+    TdApi.Message findDescendantOrSelf(long messageId) {
         return findDescendantOrSelf(messageId, null);
     }
 
-    protected boolean isSupportedMessageContent (TdApi.Message message, TdApi.MessageContent messageContent) {
+    protected boolean isSupportedMessageContent(TdApi.Message message, TdApi.MessageContent messageContent) {
         return message.content.getConstructor() == messageContent.getConstructor();
     }
 
     @MessageChangeType
-    public int setMessageContent (long messageId, TdApi.MessageContent newContent) {
+    public int setMessageContent(long messageId, TdApi.MessageContent newContent) {
         TdApi.Message message;
         boolean isBottomMessage;
         synchronized (this) {
@@ -4330,19 +4347,19 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return MESSAGE_REPLACE_REQUIRED;
     }
 
-    protected boolean updateMessageContent (TdApi.Message message, TdApi.MessageContent newContent, boolean isBottomMessage) {
+    protected boolean updateMessageContent(TdApi.Message message, TdApi.MessageContent newContent, boolean isBottomMessage) {
         return false;
     }
 
-    public void autoDownloadContent (TdApi.ChatType type) {
+    public void autoDownloadContent(TdApi.ChatType type) {
         // Override in children
     }
 
-    protected boolean shouldHideMedia () {
+    protected boolean shouldHideMedia() {
         return (flags & FLAG_HIDE_MEDIA) != 0;
     }
 
-    public final void setMediaVisible (MediaItem media, boolean isVisible) {
+    public final void setMediaVisible(MediaItem media, boolean isVisible) {
         if (isVisible) {
             flags |= FLAG_HIDE_MEDIA;
         } else {
@@ -4351,12 +4368,12 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         invalidate();
     }
 
-    public MediaViewThumbLocation getMediaThumbLocation (long messageId, View view, int viewTop, int viewBottom, int top) {
+    public MediaViewThumbLocation getMediaThumbLocation(long messageId, View view, int viewTop, int viewBottom, int top) {
         // override
         return null;
     }
 
-    public boolean updateUnread (long lastReadOutboxId, @Nullable TGMessage topMessage) {
+    public boolean updateUnread(long lastReadOutboxId, @Nullable TGMessage topMessage) {
         if (setUnread(lastReadOutboxId)) {
             if (isOutgoing()) {
                 if ((flags & FLAG_HEADER_ENABLED) == 0) {
@@ -4372,7 +4389,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return false;
     }
 
-    public boolean setUnread (long lastReadMessageId) {
+    public boolean setUnread(long lastReadMessageId) {
         boolean wasRead = (flags & MESSAGE_FLAG_READ) != 0;
         if (msg.id > lastReadMessageId) {
             flags &= ~MESSAGE_FLAG_READ;
@@ -4383,14 +4400,14 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    private void buildForwardTime () {
+    private void buildForwardTime() {
         fTime = genForwardTime();
         if ((flags & FLAG_LAYOUT_BUILT) != 0) {
             buildForward();
         }
     }
 
-    private void buildTime () {
+    private void buildTime() {
         this.time = genTime();
         if ((flags & FLAG_LAYOUT_BUILT) != 0 && (useBubbles() || (flags & FLAG_HEADER_ENABLED) != 0)) {
             layoutInfo();
@@ -4399,27 +4416,27 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
     // Hot stuff
 
-    public boolean isHot () {
+    public boolean isHot() {
         return ChatId.isUserChat(msg.chatId) && Td.isSecret(msg.content);
         // return msg.ttl > 0 && ((chat != null && chat.type.getConstructor() == TdApi.ChatTypePrivate.CONSTRUCTOR) || msg.ttl <= 60) && (flags & FLAG_EVENT_LOG) == 0 && !isEventLog();
     }
 
-    public boolean isHotDone () {
+    public boolean isHotDone() {
         return isOutgoing() && msg.ttlExpiresIn < msg.ttl;
     }
 
-    protected boolean needHotTimer () {
+    protected boolean needHotTimer() {
         return false; // override
     }
 
-    protected void onHotInvalidate (boolean secondsChanged) {
+    protected void onHotInvalidate(boolean secondsChanged) {
         // override
     }
 
     private static final int HOT_CHECK_DELAY = 18;
     private long hotTimerStart;
 
-    public void readContent () {
+    public void readContent() {
         if (!isEventLog()) {
             tdlib.client().send(new TdApi.OpenMessageContent(msg.chatId, msg.id), tdlib.okHandler());
             if (!isOutgoing()) {
@@ -4428,13 +4445,14 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public boolean isContentRead () {
+    public boolean isContentRead() {
         return TD.isMessageOpened(msg);
     }
 
-    private static @Nullable HotHandler __hotHandler;
+    private static @Nullable
+    HotHandler __hotHandler;
 
-    private static HotHandler getHotHandler () {
+    private static HotHandler getHotHandler() {
         if (__hotHandler == null) {
             synchronized (HotHandler.class) {
                 if (__hotHandler == null) {
@@ -4445,7 +4463,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return __hotHandler;
     }
 
-    private void startHotTimer (boolean byEvent) {
+    private void startHotTimer(boolean byEvent) {
         if (isHot() && needHotTimer() && hotTimerStart == 0) {
             HotHandler hotHandler = getHotHandler();
             hotTimerStart = System.currentTimeMillis();
@@ -4454,22 +4472,22 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    protected void onHotTimerStarted (boolean byEvent) {
+    protected void onHotTimerStarted(boolean byEvent) {
         // override
     }
 
-    protected boolean isHotTimerStarted () {
+    protected boolean isHotTimerStarted() {
         return hotTimerStart != 0;
     }
 
-    private void stopHotTimer () {
+    private void stopHotTimer() {
         if (hotTimerStart != 0) {
             hotTimerStart = 0;
             getHotHandler().removeMessages(HotHandler.MSG_HOT_CHECK, this);
         }
     }
 
-    private void checkHotTimer () {
+    private void checkHotTimer() {
         long now = System.currentTimeMillis();
         long elapsed = now - hotTimerStart;
         double prevTtl = msg.ttlExpiresIn;
@@ -4486,21 +4504,21 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public float getHotExpiresFactor () {
+    public float getHotExpiresFactor() {
         return (float) (msg.ttlExpiresIn / msg.ttl);
     }
 
-    public String getHotTimerText () {
+    public String getHotTimerText() {
         return TdlibUi.getDuration((int) Math.round(msg.ttlExpiresIn), TimeUnit.SECONDS, false);
     }
 
     public interface HotListener {
-        void onHotInvalidate (boolean secondsChanged);
+        void onHotInvalidate(boolean secondsChanged);
     }
 
     private HotListener hotListener;
 
-    public void setHotListener (HotListener listener) {
+    public void setHotListener(HotListener listener) {
         this.hotListener = listener;
     }
 
@@ -4508,7 +4526,8 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({MESSAGE_NOT_CHANGED, MESSAGE_INVALIDATED, MESSAGE_CHANGED, MESSAGE_REPLACE_REQUIRED})
-    public @interface MessageChangeType {}
+    public @interface MessageChangeType {
+    }
 
     public static final int MESSAGE_NOT_CHANGED = 0;
     public static final int MESSAGE_INVALIDATED = 1;
@@ -4516,13 +4535,13 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     public static final int MESSAGE_REPLACE_REQUIRED = 3;
 
     public interface MessageIdChangeListener {
-        void onMessageIdChanged (TGMessage msg, long oldMessageId, long newMessageId, boolean success);
+        void onMessageIdChanged(TGMessage msg, long oldMessageId, long newMessageId, boolean success);
     }
 
     @Nullable
     private ReferenceList<MessageIdChangeListener> messageIdChangeListeners;
 
-    private void updateMessageId (long oldMessageId, long newMessageId, boolean success) {
+    private void updateMessageId(long oldMessageId, long newMessageId, boolean success) {
         onMessageIdChanged(oldMessageId, newMessageId, success);
         if (messageIdChangeListeners != null) {
             for (MessageIdChangeListener listener : messageIdChangeListeners) {
@@ -4531,44 +4550,45 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public ReferenceList<MessageIdChangeListener> getMessageIdChangeListeners () {
+    public ReferenceList<MessageIdChangeListener> getMessageIdChangeListeners() {
         return messageIdChangeListeners != null ? messageIdChangeListeners : (messageIdChangeListeners = new ReferenceList<>());
     }
 
-    protected void onMessageIdChanged (long oldMessageId, long newMessageId, boolean success) { }
+    protected void onMessageIdChanged(long oldMessageId, long newMessageId, boolean success) {
+    }
 
-    public boolean onMessageSendAcknowledged (long messageId) {
+    public boolean onMessageSendAcknowledged(long messageId) {
         updateMessageId(messageId, messageId, true);
         return msg.id == messageId;
     }
 
-    public boolean allowInteraction () {
+    public boolean allowInteraction() {
         return !isEventLog() && !isThreadHeader();
     }
 
-    public boolean canReplyTo () {
+    public boolean canReplyTo() {
         return TD.canReplyTo(msg) && allowInteraction();
     }
 
-    public boolean isScheduled () {
+    public boolean isScheduled() {
         return msg.schedulingState != null;
     }
 
-    protected boolean onMessageContentChanged (TdApi.Message message, TdApi.MessageContent oldContent, TdApi.MessageContent newContent, boolean isBottomMessage) {
+    protected boolean onMessageContentChanged(TdApi.Message message, TdApi.MessageContent oldContent, TdApi.MessageContent newContent, boolean isBottomMessage) {
         // override
         return false;
     }
 
-    public final int setMessagePendingContentChanged (long chatId, long messageId) {
+    public final int setMessagePendingContentChanged(long chatId, long messageId) {
         int oldHeight = getHeight();
         return onMessagePendingContentChanged(chatId, messageId, oldHeight);
     }
 
-    protected int onMessagePendingContentChanged (long chatId, long messageId, int oldHeight) {
+    protected int onMessagePendingContentChanged(long chatId, long messageId, int oldHeight) {
         return MESSAGE_NOT_CHANGED;
     }
 
-    public final int setSendSucceeded (TdApi.Message message, long oldMessageId) {
+    public final int setSendSucceeded(TdApi.Message message, long oldMessageId) {
         TdApi.Message msg = null;
         boolean isBottomMessage = false;
         synchronized (this) {
@@ -4626,7 +4646,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return replaceRequired ? MESSAGE_REPLACE_REQUIRED : getHeight() == oldHeight ? MESSAGE_INVALIDATED : MESSAGE_CHANGED;
     }
 
-    private void updateInteractionInfo (boolean allowAnimation) {
+    private void updateInteractionInfo(boolean allowAnimation) {
         TdApi.MessageInteractionInfo interactionInfo = msg.interactionInfo;
         boolean animated = allowAnimation && needAnimateChanges();
         if (viewCounter != null) {
@@ -4639,7 +4659,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         isPinned.showHide(isPinned(), animated);
     }
 
-    private static void copyFlags (TdApi.Message src, TdApi.Message dst) {
+    private static void copyFlags(TdApi.Message src, TdApi.Message dst) {
         dst.id = src.id;
         dst.date = src.date;
         dst.sendingState = src.sendingState;
@@ -4660,7 +4680,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         dst.interactionInfo = src.interactionInfo;
     }
 
-    public boolean setSendFailed (TdApi.Message message, long oldMessageId) {
+    public boolean setSendFailed(TdApi.Message message, long oldMessageId) {
         TdApi.Message msg = getMessage(oldMessageId);
         if (msg != null && msg.id == oldMessageId) {
             copyFlags(message, msg);
@@ -4675,12 +4695,12 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return false;
     }
 
-    protected boolean onMessageEdited (long messageId, int editDate) {
+    protected boolean onMessageEdited(long messageId, int editDate) {
         return false;
     }
 
     @MessageChangeType
-    public int setMessageEdited (long messageId, int editDate, @Nullable TdApi.ReplyMarkup replyMarkup) {
+    public int setMessageEdited(long messageId, int editDate, @Nullable TdApi.ReplyMarkup replyMarkup) {
         boolean affectsGroup = false;
         boolean markupChanged = false;
         boolean wasEdited = false;
@@ -4720,7 +4740,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return MESSAGE_NOT_CHANGED;
     }
 
-    public void setMessageOpened (long messageId) {
+    public void setMessageOpened(long messageId) {
         synchronized (this) {
             int i = indexOfMessageInternal(messageId);
             if (i >= 0) {
@@ -4735,11 +4755,11 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         onMessageContentOpened(messageId);
     }
 
-    protected void onMessageContentOpened (long messageId) {
+    protected void onMessageContentOpened(long messageId) {
         // override
     }
 
-    public boolean setMessageInteractionInfo (long messageId, TdApi.MessageInteractionInfo interactionInfo) {
+    public boolean setMessageInteractionInfo(long messageId, TdApi.MessageInteractionInfo interactionInfo) {
         boolean changed;
         synchronized (this) {
             int i = indexOfMessageInternal(messageId);
@@ -4759,7 +4779,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return changed;
     }
 
-    public boolean setIsPinned (long messageId, boolean isPinned) {
+    public boolean setIsPinned(long messageId, boolean isPinned) {
         boolean changed;
         synchronized (this) {
             int i = indexOfMessageInternal(messageId);
@@ -4790,7 +4810,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return false;
     }
 
-    public void setMergeBottom (boolean mergeBottom) {
+    public void setMergeBottom(boolean mergeBottom) {
         if (mergeBottom) {
             flags |= FLAG_MERGE_BOTTOM;
         } else {
@@ -4798,11 +4818,11 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    private static String getBadgeText () {
+    private static String getBadgeText() {
         return Lang.getString(R.string.NewMessages);
     }
 
-    public void setShowUnreadBadge (boolean show) {
+    public void setShowUnreadBadge(boolean show) {
         flags = BitwiseUtils.setFlag(flags, FLAG_SHOW_BADGE, show);
         uBadge = show ? new Letters(getBadgeText()) : null;
         if (BitwiseUtils.getFlag(flags, FLAG_LAYOUT_BUILT)) {
@@ -4812,15 +4832,15 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public boolean hasUnreadBadge () {
+    public boolean hasUnreadBadge() {
         return (flags & FLAG_SHOW_BADGE) != 0;
     }
 
-    private boolean isBottomMessage () {
+    private boolean isBottomMessage() {
         return (flags & MESSAGE_FLAG_IS_BOTTOM) != 0;
     }
 
-    public void setIsBottom (boolean isBottom) {
+    public void setIsBottom(boolean isBottom) {
         if (isBottom != isBottomMessage()) {
             if (isBottom) {
                 flags |= MESSAGE_FLAG_IS_BOTTOM;
@@ -4833,32 +4853,32 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public void setIsThreadHeader (boolean isThreadHeader) {
+    public void setIsThreadHeader(boolean isThreadHeader) {
         this.flags = BitwiseUtils.setFlag(flags, MESSAGE_FLAG_IS_THREAD_HEADER, isThreadHeader);
         updateInteractionInfo(false);
     }
 
-    protected int getBubbleContentPadding () {
+    protected int getBubbleContentPadding() {
         return xBubblePadding;
     }
 
-    private int getBubblePaddingLeft () {
+    private int getBubblePaddingLeft() {
         return useForward() ? xBubblePadding + xBubblePaddingSmall : getBubbleContentPadding();
     }
 
-    private static int getBubbleNameHeight () {
+    private static int getBubbleNameHeight() {
         return Screen.dp(24f);
     }
 
-    private static int getPsaTitleHeight () {
+    private static int getPsaTitleHeight() {
         return Screen.dp(20f);
     }
 
-    public boolean useBubbleName () {
+    public boolean useBubbleName() {
         return (flags & FLAG_HEADER_ENABLED) != 0 && needName(true);
     }
 
-    private int getBubbleSpecialPaddingTop () {
+    private int getBubbleSpecialPaddingTop() {
     /*if (disableBubble()) {
       return msg.replyToMessageId != 0 && !alignReplyHorizontally() ? Screen.dp(3f) : 0;
     }*/
@@ -4878,20 +4898,20 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return padding;
     }
 
-    private int getBubblePaddingTop () {
+    private int getBubblePaddingTop() {
         int specialPadding = getBubbleSpecialPaddingTop();
         return specialPadding != 0 ? specialPadding : getBubbleContentPadding();
     }
 
-    protected final int getBubblePaddingRight () {
+    protected final int getBubblePaddingRight() {
         return useForward() ? xBubblePadding + xBubblePaddingSmall : getBubbleContentPadding();
     }
 
-    private int getBubblePaddingBottom () {
+    private int getBubblePaddingBottom() {
         return useForward() ? xBubblePadding + xBubblePaddingSmall : getBubbleContentPadding();
     }
 
-    public boolean setNeedExtraPadding (boolean needPadding) {
+    public boolean setNeedExtraPadding(boolean needPadding) {
         int oldHeight = height;
         if (needPadding) {
             if ((flags & FLAG_EXTRA_PADDING) == 0) {
@@ -4911,7 +4931,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return oldHeight != height;
     }
 
-    public boolean setNeedExtraPresponsoredPadding (boolean needPadding) {
+    public boolean setNeedExtraPresponsoredPadding(boolean needPadding) {
         int oldHeight = height;
         if (needPadding) {
             if (!needSponsorSmallPadding) {
@@ -4931,7 +4951,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return oldHeight != height;
     }
 
-    private void setHeaderEnabled (boolean enabled) {
+    private void setHeaderEnabled(boolean enabled) {
         boolean isEnabledNow = (flags & FLAG_HEADER_ENABLED) != 0;
         if (enabled != isEnabledNow) {
             if (enabled) {
@@ -4949,7 +4969,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
     private boolean isDestroyed;
 
-    public final void onDestroy () {
+    public final void onDestroy() {
         isDestroyed = true;
         stopHotTimer();
         if (forwardInfo != null)
@@ -4960,11 +4980,11 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         onMessageContainerDestroyed();
     }
 
-    public final boolean isDestroyed () {
+    public final boolean isDestroyed() {
         return isDestroyed;
     }
 
-    protected void onMessageContainerDestroyed () {
+    protected void onMessageContainerDestroyed() {
         // implement in children
     }
 
@@ -4974,7 +4994,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     private float moveFactor, selectionFactor;
     private SelectionInfo selection;
 
-    public int getSelectionColor (float factor) {
+    public int getSelectionColor(float factor) {
         final boolean useBubbles = useBubbles();
         if (useBubbles) {
             return ColorUtils.alphaColor(factor, ColorUtils.fromToArgb(Theme.getColor(R.id.theme_color_bubble_messageSelection), Theme.getColor(R.id.theme_color_bubble_messageSelectionNoWallpaper), manager.controller().wallpaper().getBackgroundTransparency()));
@@ -4987,11 +5007,11 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     return U.alphaColor(factor, useBubbles ? color : U.compositeColor(Theme.getColor(R.id.theme_color_chatPlainBackground), color));*/
     }
 
-    private int findBottomEdge () {
+    private int findBottomEdge() {
         return height - getExtraPadding();
     }
 
-    private void drawSelection (View view, Canvas c) {
+    private void drawSelection(View view, Canvas c) {
         if (selectionFactor == 1f) {
             c.drawRect(0, findTopEdge(), view.getMeasuredWidth(), findBottomEdge(), Paints.fillingPaint(getSelectionColor(1f)));
             return;
@@ -5004,25 +5024,25 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public void onSelectableFactorChanged () {
+    public void onSelectableFactorChanged() {
         invalidate(true);
     }
 
-    private void setSelectionFactor (float factor) {
+    private void setSelectionFactor(float factor) {
         if (this.selectionFactor != factor) {
             this.selectionFactor = factor;
             invalidateParentOrSelf(false);
         }
     }
 
-    public int findTopEdge () {
+    public int findTopEdge() {
         return getHeaderPadding() - ((flags & FLAG_HEADER_ENABLED) != 0 && !useBubbles() ? xHeaderPadding : 0);
     }
 
     private LongList selectedMessageIds;
     private LongSparseArray<FactorAnimator> selectionAnimators;
 
-    public final boolean isCompletelySelected () {
+    public final boolean isCompletelySelected() {
         synchronized (this) {
             int selectedCount = selectedMessageIds != null ? selectedMessageIds.size() : 0;
             if (selectedCount == 0) {
@@ -5033,19 +5053,19 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public final boolean hasSelectedMessages () {
+    public final boolean hasSelectedMessages() {
         synchronized (this) {
             return selectedMessageIds != null && selectedMessageIds.size() > 0;
         }
     }
 
-    public final boolean shouldApplySelectionFully () {
+    public final boolean shouldApplySelectionFully() {
         synchronized (this) {
             return combinedMessages == null || combinedMessages.size() <= 1;
         }
     }
 
-    protected final FactorAnimator findSelectionAnimator (long messageId) {
+    protected final FactorAnimator findSelectionAnimator(long messageId) {
         synchronized (this) {
             if (selectionAnimators != null) {
                 return selectionAnimators.get(messageId);
@@ -5054,22 +5074,23 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return null;
     }
 
-    protected void onAnimatorAttachedToMessage (long messageId, FactorAnimator animator) {
+    protected void onAnimatorAttachedToMessage(long messageId, FactorAnimator animator) {
         // override
     }
 
-    protected void onMessageSelectionChanged (long messageId, float selectionFactor, boolean needInvalidate) { }
+    protected void onMessageSelectionChanged(long messageId, float selectionFactor, boolean needInvalidate) {
+    }
 
-    public final float getSelectionFactor (FactorAnimator childAnimator) {
+    public final float getSelectionFactor(FactorAnimator childAnimator) {
         return childAnimator == null || (childAnimator.getIntValue() & ANIMATION_FLAG_IGNORE_CHILD) != 0f || shouldApplySelectionFully() ? 0f : childAnimator.getFactor();
     }
 
-    public final long findMessageIdUnder (float x, float y) {
+    public final long findMessageIdUnder(float x, float y) {
         x -= getSelectableContentOffset(manager.getSelectableFactor());
         return findChildMessageIdUnder(x, y);
     }
 
-    protected long findChildMessageIdUnder (float x, float y) {
+    protected long findChildMessageIdUnder(float x, float y) {
         return 0;
     }
 
@@ -5078,7 +5099,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     private static final int ANIMATION_FLAG_AFFECTS_SELECTABLE = 1 << 2;
     private static final int ANIMATION_FLAG_IGNORE_SELF = 1 << 3;
 
-    private void forceCancelGlobalAnimation (boolean reset) {
+    private void forceCancelGlobalAnimation(boolean reset) {
         if (selectedMessageIds != null) {
             final int size = selectionAnimators.size();
             for (int i = 0; i < size; i++) {
@@ -5093,7 +5114,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    private void forceRemoveAnimation (long messageId) {
+    private void forceRemoveAnimation(long messageId) {
         if (selectedMessageIds != null) {
             selectedMessageIds.remove(messageId);
 
@@ -5124,7 +5145,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    private boolean prepareSelectionAnimation (float pivotX, float pivotY) {
+    private boolean prepareSelectionAnimation(float pivotX, float pivotY) {
         final int viewWidth = currentViews.getMeasuredWidth();
         final View view = findCurrentView();
 
@@ -5172,8 +5193,9 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     private static final int ANIMATOR_SELECT = -3;
 
     public interface SelectableDelegate {
-        void onSelectableModeChanged (boolean isSelectable, FactorAnimator animator);
-        void onSelectableFactorChanged (float factor, FactorAnimator callee);
+        void onSelectableModeChanged(boolean isSelectable, FactorAnimator animator);
+
+        void onSelectableFactorChanged(float factor, FactorAnimator callee);
     }
 
   /*public interface CommonDelegate {
@@ -5183,7 +5205,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
     // private @Nullable CommonDelegate commonDelegate;
 
-    private void initSelectedMessages () {
+    private void initSelectedMessages() {
         LongList ids = null;
         synchronized (this) {
             if (combinedMessages != null && !combinedMessages.isEmpty()) {
@@ -5211,7 +5233,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public void setSelected (long messageId, boolean isSelected, boolean animated, float pivotX, float pivotY, @Nullable SelectableDelegate selectable) {
+    public void setSelected(long messageId, boolean isSelected, boolean animated, float pivotX, float pivotY, @Nullable SelectableDelegate selectable) {
         if (isSelected && !canBeSelected()) {
             return;
         }
@@ -5282,12 +5304,12 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     // Animations
 
     @Override
-    public boolean needAnimateChanges (Counter counter) {
+    public boolean needAnimateChanges(Counter counter) {
         return needAnimateChanges();
     }
 
     @Override
-    public void onCounterAppearanceChanged (Counter counter, boolean sizeChanged) {
+    public void onCounterAppearanceChanged(Counter counter, boolean sizeChanged) {
         if (sizeChanged && BitwiseUtils.getFlag(flags, FLAG_LAYOUT_BUILT)) {
             if (counter == viewCounter) {
                 switch (getViewCountMode()) {
@@ -5314,7 +5336,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     }
 
     @Override
-    public final void onFactorChanged (int id, float factor, float fraction, FactorAnimator callee) {
+    public final void onFactorChanged(int id, float factor, float fraction, FactorAnimator callee) {
         if (id >= 0) {
             onChildFactorChanged(id, factor, fraction);
         } else {
@@ -5367,29 +5389,29 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     }
 
     @Override
-    public final void onFactorChangeFinished (int id, float finalFactor, FactorAnimator callee) {
+    public final void onFactorChangeFinished(int id, float finalFactor, FactorAnimator callee) {
         if (id >= 0) {
             onChildFactorChangeFinished(id, finalFactor, callee);
         }
     }
 
-    protected void onChildFactorChanged (int id, float factor, float fraction) {
+    protected void onChildFactorChanged(int id, float factor, float fraction) {
         // override
     }
 
-    protected void onChildFactorChangeFinished (int id, float finalFactor, FactorAnimator callee) {
+    protected void onChildFactorChangeFinished(int id, float finalFactor, FactorAnimator callee) {
         // override
     }
 
     // Highlight
 
-    public void drawHighlight (View view, Canvas c) {
+    public void drawHighlight(View view, Canvas c) {
         if (highlightFactor != 0f) {
             c.drawRect(0, findTopEdge(), view.getMeasuredWidth(), findBottomEdge(), Paints.fillingPaint(getSelectionColor(highlightFactor)));
         }
     }
 
-    public void highlight (boolean revoke) {
+    public void highlight(boolean revoke) {
         cancelHighlightRevoke();
         setHighlight(1f);
         if (revoke) {
@@ -5397,7 +5419,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    private void setHighlight (float highlight) {
+    private void setHighlight(float highlight) {
         if (this.highlightFactor != highlight) {
             this.highlightFactor = highlight;
             invalidateParentOrSelf(false);
@@ -5407,14 +5429,14 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     private FactorAnimator revokeAnimator;
     private static final int ANIMATOR_REVOKE = -1;
 
-    private void cancelHighlightRevoke () {
+    private void cancelHighlightRevoke() {
         if (revokeAnimator != null) {
             revokeAnimator.cancel();
             revokeAnimator = null;
         }
     }
 
-    public void revokeHighlight () {
+    public void revokeHighlight() {
         if (revokeAnimator != null && revokeAnimator.isAnimating()) {
             return;
         }
@@ -5432,21 +5454,21 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     private float translation;
     private float dismissFactor;
 
-    public void resetTransformState () {
+    public void resetTransformState() {
         if (highlightFactor == 1f) {
             revokeHighlight();
         }
     }
 
-    public float getTranslation () {
+    public float getTranslation() {
         return translation;
     }
 
-    public boolean canSwipe () {
+    public boolean canSwipe() {
         return ((flags & FLAG_IGNORE_SWIPE) == 0);
     }
 
-    public void normalizeTranslation (final View view, @Nullable final Runnable after, final boolean needDelay) {
+    public void normalizeTranslation(final View view, @Nullable final Runnable after, final boolean needDelay) {
         if (translation == 0f) {
             return;
         }
@@ -5472,7 +5494,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         flags |= FLAG_IGNORE_SWIPE;
         FactorAnimator animator = new FactorAnimator(0, new FactorAnimator.Target() {
             @Override
-            public void onFactorChanged (int id, float factor, float fraction, FactorAnimator callee) {
+            public void onFactorChanged(int id, float factor, float fraction, FactorAnimator callee) {
                 if (needDelay && fraction >= .85f && after != null && !status[0]) {
                     status[0] = true;
                     U.run(after);
@@ -5486,7 +5508,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
             }
 
             @Override
-            public void onFactorChangeFinished (int id, float finalFactor, FactorAnimator callee) {
+            public void onFactorChangeFinished(int id, float finalFactor, FactorAnimator callee) {
                 flags &= ~FLAG_IGNORE_SWIPE;
         /*if (needDelay) {
           U.run(after);
@@ -5502,14 +5524,14 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     private static final int ANIMATOR_READY_SHARE = -4;
     private static final int ANIMATOR_READY_REPLY = -5;
 
-    private void vibrate () {
+    private void vibrate() {
         UI.hapticVibrate(findCurrentView(), true);
     }
 
     private float replyReadyFactor, shareReadyFactor;
     private FactorAnimator replyReadyAnimator, shareReadyAnimator;
 
-    private void setReadyFactor (boolean isShare, float factor, boolean animated, boolean invalidate) {
+    private void setReadyFactor(boolean isShare, float factor, boolean animated, boolean invalidate) {
         FactorAnimator readyAnimator = isShare ? shareReadyAnimator : replyReadyAnimator;
         float readyFactor = isShare ? shareReadyFactor : replyReadyFactor;
         if (animated) {
@@ -5542,7 +5564,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public void translate (float dx, boolean bySwipe) {
+    public void translate(float dx, boolean bySwipe) {
         if (bySwipe && ((flags & FLAG_IGNORE_SWIPE) != 0)) {
             return;
         }
@@ -5590,7 +5612,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         invalidate(true);
     }
 
-    private void drawTranslate (View view, Canvas c) {
+    private void drawTranslate(View view, Canvas c) {
         float x;
         int quickColor;
         if (translation == 0f) {
@@ -5794,7 +5816,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public void setDismiss (float dismiss) {
+    public void setDismiss(float dismiss) {
         if (this.dismissFactor != dismiss) {
             this.dismissFactor = dismiss;
             invalidateParentOrSelf(true);
@@ -5804,7 +5826,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     private static final int ANIMATOR_DISMISS = -2;
     private FactorAnimator dismissAnimator;
 
-    private void animateDismiss (float startFactor, float toFactor) {
+    private void animateDismiss(float startFactor, float toFactor) {
         if (dismissAnimator != null) {
             dismissAnimator.forceFactor(startFactor);
         }
@@ -5820,15 +5842,15 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         dismissAnimator.animateTo(toFactor);
     }
 
-    public float getDismiss () {
+    public float getDismiss() {
         return dismissFactor;
     }
 
-    public int currentActualHeight () {
+    public int currentActualHeight() {
         return height - getHeaderPadding() + (useBubbles() ? 0 : xHeaderPadding);
     }
 
-    public void completeTranslation () {
+    public void completeTranslation() {
         float startDismiss = Math.signum(translation);
         translation = 0f;
         moveFactor = 0f;
@@ -5842,7 +5864,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         float diffX, diffY;
         float expectedRadius;
 
-        public SelectionInfo (int startY, float pivotX, float pivotY, float diffX, float diffY, float radius) {
+        public SelectionInfo(int startY, float pivotX, float pivotY, float diffX, float diffY, float radius) {
             this.startY = startY;
             this.pivotX = pivotX;
             this.pivotY = pivotY;
@@ -5858,7 +5880,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     private boolean hideEventDate;
     private long eventMessageId;
 
-    protected final TGMessage setIsEventLog (TdApiExt.MessageChatEvent event, long messageId) {
+    protected final TGMessage setIsEventLog(TdApiExt.MessageChatEvent event, long messageId) {
         flags |= FLAG_EVENT_LOG;
         this.eventDate = event.event.date;
         this.hideEventDate = event.hideDate;
@@ -5867,26 +5889,26 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return this;
     }
 
-    private boolean needHideEventDate () {
+    private boolean needHideEventDate() {
         return hideEventDate || (msg.content.getConstructor() == TdApiExt.MessageChatEvent.CONSTRUCTOR && ((TdApiExt.MessageChatEvent) msg.content).hideDate);
     }
 
-    public final boolean isEventLog () {
+    public final boolean isEventLog() {
         return (flags & FLAG_EVENT_LOG) != 0 || msg.content.getConstructor() == TdApiExt.MessageChatEvent.CONSTRUCTOR;
     }
 
-    private boolean isThreadHeader () {
+    private boolean isThreadHeader() {
         return BitwiseUtils.getFlag(flags, MESSAGE_FLAG_IS_THREAD_HEADER);
     }
 
     protected String footerTitle;
     protected TextWrapper footerText;
 
-    protected boolean hasFooter () {
+    protected boolean hasFooter() {
         return footerTitle != null && footerText != null;
     }
 
-    public void setFooter (String title, String text, TdApi.TextEntity[] entities) {
+    public void setFooter(String title, String text, TdApi.TextEntity[] entities) {
         this.footerTitle = title;
 
         TextWrapper wrapper = new TextWrapper(text, getSmallerTextStyleProvider(), getTextColorSet(), TextEntity.valueOf(tdlib, text, entities, openParameters())).setClickCallback(clickCallback());
@@ -5901,38 +5923,38 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         this.footerText = wrapper;
     }
 
-    protected final int getFooterTop () {
+    protected final int getFooterTop() {
         return pContentY + getContentHeight() + getFooterPaddingTop();
     }
 
-    protected final int getFooterHeight () {
+    protected final int getFooterHeight() {
         return Screen.dp(22f) + footerText.getHeight() + Screen.dp(2f);
     }
 
-    protected final int getCommentButtonHeight () {
+    protected final int getCommentButtonHeight() {
         return Screen.dp(40f);
     }
 
-    protected final int getBubbleReduceHeight () {
+    protected final int getBubbleReduceHeight() {
         return Math.round(getCommentButtonHeight() * hasCommentButton.getFloatValue());
     }
 
-    protected final int getFooterWidth () {
+    protected final int getFooterWidth() {
         return Math.max(trimmedFooterTitleWidth, footerText.getWidth()) + Screen.dp(10f);
     }
 
-    protected int getFooterPaddingTop () {
+    protected int getFooterPaddingTop() {
         return Screen.dp(4f);
     }
 
-    protected int getFooterPaddingBottom () {
+    protected int getFooterPaddingBottom() {
         return Screen.dp(2f);
     }
 
     private String trimmedFooterTitle;
     private int trimmedFooterTitleWidth;
 
-    private void buildFooter () {
+    private void buildFooter() {
         if (!hasFooter()) {
             return;
         }
@@ -5955,33 +5977,34 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
     // Color Sets
 
-    private TextColorSet pick (TextColorSets.Regular regular, TextColorSets.BubbleOut bubbleOut, TextColorSets.BubbleIn bubbleIn) {
+    private TextColorSet pick(TextColorSets.Regular regular, TextColorSets.BubbleOut bubbleOut, TextColorSets.BubbleIn bubbleIn) {
         return useBubbles() ? (isOutgoingBubble() ? bubbleOut : bubbleIn) : regular;
     }
 
-    public final TextColorSet getDecentColorSet () {
+    public final TextColorSet getDecentColorSet() {
         return pick(TextColorSets.Regular.LIGHT, TextColorSets.BubbleOut.LIGHT, TextColorSets.BubbleIn.LIGHT);
     }
 
-    public final TextColorSet getLinkColorSet () {
+    public final TextColorSet getLinkColorSet() {
         return pick(TextColorSets.Regular.LINK, TextColorSets.BubbleOut.LINK, TextColorSets.BubbleIn.LINK);
     }
 
-    public final TextColorSet getTextColorSet () {
+    public final TextColorSet getTextColorSet() {
         return pick(TextColorSets.Regular.NORMAL, TextColorSets.BubbleOut.NORMAL, TextColorSets.BubbleIn.NORMAL);
     }
 
-    public final TextColorSet getChatAuthorColorSet () {
+    public final TextColorSet getChatAuthorColorSet() {
         return pick(TextColorSets.Regular.MESSAGE_AUTHOR, TextColorSets.BubbleOut.MESSAGE_AUTHOR, TextColorSets.BubbleIn.MESSAGE_AUTHOR);
     }
 
-    public final TextColorSet getChatAuthorPsaColorSet () {
+    public final TextColorSet getChatAuthorPsaColorSet() {
         return pick(TextColorSets.Regular.MESSAGE_AUTHOR_PSA, TextColorSets.BubbleOut.MESSAGE_AUTHOR_PSA, TextColorSets.BubbleIn.MESSAGE_AUTHOR_PSA);
     }
 
     // Colors
 
-    public final @ColorInt int getContentBackgroundColor () {
+    public final @ColorInt
+    int getContentBackgroundColor() {
         if (useBubbles()) {
             return Theme.getColor(isOutgoingBubble() ? R.id.theme_color_bubbleOut_background : R.id.theme_color_bubbleIn_background);
         } else {
@@ -5989,79 +6012,88 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public final @ThemeColorId int getDecentColorId (@ThemeColorId int defaultColorId) {
+    public final @ThemeColorId
+    int getDecentColorId(@ThemeColorId int defaultColorId) {
         return useBubbles() ? (isOutgoingBubble() ? R.id.theme_color_bubbleOut_time : R.id.theme_color_bubbleIn_time) : defaultColorId;
     }
 
-    public final @ThemeColorId int getProgressColorId () {
+    public final @ThemeColorId
+    int getProgressColorId() {
         return useBubbles() ? (isOutgoingBubble() ? R.id.theme_color_bubbleOut_progress : R.id.theme_color_bubbleIn_progress) : R.id.theme_color_progress;
     }
 
-    public final int getProgressColor () {
+    public final int getProgressColor() {
         return Theme.getColor(getProgressColorId());
     }
 
-    public final @ThemeColorId int getDecentColorId () {
+    public final @ThemeColorId
+    int getDecentColorId() {
         return getDecentColorId(R.id.theme_color_textLight);
     }
 
-    public final @ThemeColorId int getSeparatorColorId () {
+    public final @ThemeColorId
+    int getSeparatorColorId() {
         return useBubbles() ? (isOutgoingBubble() ? R.id.theme_color_bubbleOut_separator : R.id.theme_color_bubbleIn_separator) : R.id.theme_color_separator;
     }
 
-    public final @ThemeColorId int getPressColorId () {
+    public final @ThemeColorId
+    int getPressColorId() {
         return useBubbles() ? (isOutgoingBubble() ? R.id.theme_color_bubbleOut_pressed : R.id.theme_color_bubbleIn_pressed) : R.id.theme_color_messageSelection;
     }
 
-    public final @ThemeColorId int getDecentIconColorId () {
+    public final @ThemeColorId
+    int getDecentIconColorId() {
         return getDecentColorId(R.id.theme_color_iconLight);
     }
 
-    public final @ColorInt int getDecentColor () {
+    public final @ColorInt
+    int getDecentColor() {
         return Theme.getColor(getDecentColorId());
     }
 
-    public final @ColorInt int getSeparatorColor () {
+    public final @ColorInt
+    int getSeparatorColor() {
         return Theme.getColor(getSeparatorColorId());
     }
 
-    public final @ColorInt int getDecentIconColor () {
+    public final @ColorInt
+    int getDecentIconColor() {
         return Theme.getColor(getDecentIconColorId());
     }
 
-    public final Paint getDecentIconPaint () {
+    public final Paint getDecentIconPaint() {
         return useBubbles() ? (isOutgoingBubble() ? Paints.getBubbleOutTimePaint() : Paints.getBubbleInTimePaint()) : Paints.getIconLightPorterDuffPaint();
     }
 
-    public final int getTextColor () {
+    public final int getTextColor() {
         return Theme.getColor(useBubbles() ? (isOutgoingBubble() ? R.id.theme_color_bubbleOut_text : R.id.theme_color_bubbleIn_text) : R.id.theme_color_text);
     }
 
-    public final int getOutlineColor () {
+    public final int getOutlineColor() {
         return Theme.getColor(useBubbles() ? (isOutgoingBubble() ? R.id.theme_color_bubbleOut_outline : R.id.theme_color_bubbleIn_outline) : R.id.theme_color_separator);
     }
 
-    public final int getTextLinkColor () {
+    public final int getTextLinkColor() {
         return Theme.getColor(useBubbles() ? (isOutgoingBubble() ? R.id.theme_color_bubbleOut_textLink : R.id.theme_color_bubbleIn_textLink) : R.id.theme_color_textLink);
     }
 
-    public final int getTextLinkHighlightColor () {
+    public final int getTextLinkHighlightColor() {
         return Theme.getColor(useBubbles() ? (isOutgoingBubble() ? R.id.theme_color_bubbleOut_textLinkPressHighlight : R.id.theme_color_bubbleIn_textLinkPressHighlight) : R.id.theme_color_textLinkPressHighlight);
     }
 
-    protected final int getTextTopOffset () {
+    protected final int getTextTopOffset() {
         return (!needHeader() || !needName()) && (!useForward() || ((flags & FLAG_SELF_CHAT) != 0 && !isOutgoing())) && replyData == null ? 0 : -Screen.dp(useBubbles() ? 4f : 2f);
     }
 
-    protected final int getVerticalLineColor () {
+    protected final int getVerticalLineColor() {
         return Theme.getColor(isOutgoingBubble() ? R.id.theme_color_bubbleOut_chatVerticalLine : R.id.theme_color_messageVerticalLine);
     }
 
-    protected final int getVerticalLineContentColor () {
+    protected final int getVerticalLineContentColor() {
         return Theme.getColor(isOutgoingBubble() ? R.id.theme_color_bubbleOut_chatNeutralFillingContent : R.id.theme_color_messageNeutralFillingContent);
     }
 
-    protected final int getCorrectLineColor (boolean isPersonal) {
+    protected final int getCorrectLineColor(boolean isPersonal) {
         return Theme.getColor(
                 isPersonal ?
                         isOutgoingBubble() ? R.id.theme_color_bubbleOut_chatCorrectChosenFilling : R.id.theme_color_messageCorrectChosenFilling :
@@ -6069,7 +6101,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         );
     }
 
-    protected final int getCorrectLineContentColor (boolean isPersonal) {
+    protected final int getCorrectLineContentColor(boolean isPersonal) {
         return Theme.getColor(
                 isPersonal ?
                         isOutgoingBubble() ? R.id.theme_color_bubbleOut_chatCorrectChosenFillingContent : R.id.theme_color_messageCorrectChosenFillingContent :
@@ -6077,27 +6109,27 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         );
     }
 
-    protected final int getNegativeLineColor () {
+    protected final int getNegativeLineColor() {
         return Theme.getColor(isOutgoingBubble() ? R.id.theme_color_bubbleOut_chatNegativeFilling : R.id.theme_color_messageNegativeLine);
     }
 
-    protected final int getNegativeLineContentColor () {
+    protected final int getNegativeLineContentColor() {
         return Theme.getColor(isOutgoingBubble() ? R.id.theme_color_bubbleOut_chatNegativeFillingContent : R.id.theme_color_messageNegativeLineContent);
     }
 
-    protected final int getChatAuthorColor () {
+    protected final int getChatAuthorColor() {
         return Theme.getColor(getChatAuthorColorId());
     }
 
-    protected final int getChatAuthorColorId () {
+    protected final int getChatAuthorColorId() {
         return isOutgoingBubble() ? R.id.theme_color_bubbleOut_messageAuthor : R.id.theme_color_messageAuthor;
     }
 
-    protected final int getChatAuthorPsaColor () {
+    protected final int getChatAuthorPsaColor() {
         return Theme.getColor(isOutgoingBubble() ? R.id.theme_color_bubbleOut_messageAuthorPsa : R.id.theme_color_messageAuthorPsa);
     }
 
-    private void drawCommentButton (MessageView view, Canvas c, int startX, int endX, int y, float alpha) {
+    private void drawCommentButton(MessageView view, Canvas c, int startX, int endX, int y, float alpha) {
         int cy = y + getCommentButtonHeight() / 2;
         int iconColorId = getChatAuthorColorId();
         Drawable drawable = view.getSparseDrawable(R.drawable.templarian_outline_comment_22, iconColorId);
@@ -6108,7 +6140,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         DrawAlgorithms.drawDirection(c, endX - Screen.dp(12f), cy, ColorUtils.alphaColor(alpha, Theme.getColor(iconColorId)), Gravity.RIGHT);
     }
 
-    private void drawFooter (Canvas c) {
+    private void drawFooter(Canvas c) {
         int contentX, contentY = getFooterTop();
         if (useBubbles()) {
             // int bubblePadding = getBubbleContentPadding();
@@ -6133,7 +6165,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
     // Locale change
 
-    public final boolean updateLocale () {
+    public final boolean updateLocale() {
         boolean updated = false;
         String time = genTime();
         if (this.time == null || !this.time.equals(time)) {
@@ -6170,24 +6202,24 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return false;
     }
 
-    protected boolean onLocaleChange () {
+    protected boolean onLocaleChange() {
         return false;
     }
 
     @Override
-    public int compareTo (TGMessage o) {
+    public int compareTo(TGMessage o) {
         return Long.compare(o.getId(), getId());
     }
 
-    public TooltipOverlayView.TooltipInfo showContentHint (View view, TooltipOverlayView.LocationProvider locationProvider, @StringRes int stringRes) {
+    public TooltipOverlayView.TooltipInfo showContentHint(View view, TooltipOverlayView.LocationProvider locationProvider, @StringRes int stringRes) {
         return showContentHint(view, locationProvider, new TdApi.FormattedText(Lang.getString(stringRes), null));
     }
 
-    public TooltipOverlayView.TooltipInfo showContentHint (View view, TooltipOverlayView.LocationProvider locationProvider, TdApi.FormattedText text) {
+    public TooltipOverlayView.TooltipInfo showContentHint(View view, TooltipOverlayView.LocationProvider locationProvider, TdApi.FormattedText text) {
         return buildContentHint(view, locationProvider).show(tdlib, text);
     }
 
-    public TooltipOverlayView.TooltipBuilder buildContentHint (View view, TooltipOverlayView.LocationProvider locationProvider) {
+    public TooltipOverlayView.TooltipBuilder buildContentHint(View view, TooltipOverlayView.LocationProvider locationProvider) {
         return context().tooltipManager().builder(view, currentViews)
                 .locate((v, outRect) -> {
                     locationProvider.getTargetBounds(v, outRect);
@@ -6202,20 +6234,20 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     private Text.ClickCallback clickCallback;
 
     @Nullable
-    protected TdApi.WebPage findLinkPreview (String link) {
+    protected TdApi.WebPage findLinkPreview(String link) {
         return null;
     }
 
-    protected boolean hasInstantView (String link) {
+    protected boolean hasInstantView(String link) {
         return false;
     }
 
-    protected final Text.ClickCallback clickCallback () {
+    protected final Text.ClickCallback clickCallback() {
         if (clickCallback != null)
             return clickCallback;
         return clickCallback = new Text.ClickCallback() {
             @Override
-            public boolean onCommandClick (View view, Text text, TextPart part, String command, boolean isLongPress) {
+            public boolean onCommandClick(View view, Text text, TextPart part, String command, boolean isLongPress) {
                 if (isLongPress) {
                     messagesController().onCommandLongPressed(TGMessage.this, command);
                 } else {
@@ -6232,42 +6264,42 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
             }
 
             @Override
-            public TdApi.WebPage findWebPage (String link) {
+            public TdApi.WebPage findWebPage(String link) {
                 return findLinkPreview(link);
             }
 
             @Override
-            public boolean forceInstantView (String link) {
+            public boolean forceInstantView(String link) {
                 return hasInstantView(link);
             }
         };
     }
 
     @Nullable
-    protected final TooltipOverlayView.ColorProvider newMessageColorProvider () {
+    protected final TooltipOverlayView.ColorProvider newMessageColorProvider() {
         return useBubbles() && !useBubble() ? null : new TooltipOverlayView.ColorProvider() {
             @Override
-            public int tooltipColor () {
+            public int tooltipColor() {
                 return getContentReplaceColor();
             }
 
             @Override
-            public int defaultTextColor () {
+            public int defaultTextColor() {
                 return getTextColor();
             }
 
             @Override
-            public int clickableTextColor (boolean isPressed) {
+            public int clickableTextColor(boolean isPressed) {
                 return getTextLinkColor();
             }
 
             @Override
-            public int backgroundColor (boolean isPressed) {
+            public int backgroundColor(boolean isPressed) {
                 return isPressed ? getTextLinkHighlightColor() : 0;
             }
 
             @Override
-            public int outlineColor (boolean isPressed) {
+            public int outlineColor(boolean isPressed) {
                 return getOutlineColor();
             }
         };
@@ -6277,26 +6309,27 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
     protected static Paint mQuickText;
 
-    protected static TextPaint mHotPaint () {
+    protected static TextPaint mHotPaint() {
         return Paints.getRegularTextPaint(12f);
     }
 
-    private TextPaint getBadgePaint (boolean needFakeBold) {
+    private TextPaint getBadgePaint(boolean needFakeBold) {
         return Paints.getMediumTextPaint(14f, needFakeBold);
     }
 
-    protected static TextPaint mTimeBubble () {
+    protected static TextPaint mTimeBubble() {
         return Paints.getRegularTextPaint(11f);
     }
 
-    protected static TextPaint mTime (boolean willDraw) {
+    protected static TextPaint mTime(boolean willDraw) {
         TextPaint paint = Paints.getRegularTextPaint(12f);
         if (willDraw)
-            paint.setColor(Theme.getColor(R.id.theme_color_textLight));;
+            paint.setColor(Theme.getColor(R.id.theme_color_textLight));
+        ;
         return paint;
     }
 
-    private static void initPaints () {
+    private static void initPaints() {
         if (mQuickText == null) {
             mQuickText = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG | Paint.FILTER_BITMAP_FLAG);
             mQuickText.setColor(Theme.chatQuickActionTextColor());
@@ -6308,21 +6341,21 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
     private static TextStyleProvider styleProvider, simpleStyleProvider, biggerStyleProvider, smallerStyleProvider, nameProvider, timeProvider;
 
-    public static TextStyleProvider simpleTextStyleProvider () {
+    public static TextStyleProvider simpleTextStyleProvider() {
         if (simpleStyleProvider == null) {
             simpleStyleProvider = new TextStyleProvider(Fonts.newRobotoStorage()).setTextSize(Settings.CHAT_FONT_SIZE_DEFAULT);
         }
         return simpleStyleProvider;
     }
 
-    public static TextStyleProvider getNameStyleProvider () {
+    public static TextStyleProvider getNameStyleProvider() {
         if (nameProvider == null) {
             nameProvider = new TextStyleProvider(Fonts.newRobotoStorage()).setTextSize(15f);
         }
         return nameProvider;
     }
 
-    public static TextStyleProvider getTextStyleProvider () {
+    public static TextStyleProvider getTextStyleProvider() {
         if (styleProvider == null) {
             styleProvider = new TextStyleProvider(Fonts.newRobotoStorage()).setTextSize(Settings.instance().getChatFontSize()).setAllowSp(true);
             Settings.instance().addChatFontSizeChangeListener(styleProvider);
@@ -6330,7 +6363,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return styleProvider;
     }
 
-    public static TextStyleProvider getSmallerTextStyleProvider () {
+    public static TextStyleProvider getSmallerTextStyleProvider() {
         if (smallerStyleProvider == null) {
             smallerStyleProvider = new TextStyleProvider(Fonts.newRobotoStorage()).setTextSizeDiff(-1f).setTextSize(Settings.instance().getChatFontSize()).setAllowSp(true);
             Settings.instance().addChatFontSizeChangeListener(smallerStyleProvider);
@@ -6338,7 +6371,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return smallerStyleProvider;
     }
 
-    public static TextStyleProvider getBiggerTextStyleProvider () {
+    public static TextStyleProvider getBiggerTextStyleProvider() {
         if (biggerStyleProvider == null) {
             biggerStyleProvider = new TextStyleProvider(Fonts.newRobotoStorage()).setTextSizeDiff(1f).setTextSize(Settings.instance().getChatFontSize()).setAllowSp(true);
             Settings.instance().addChatFontSizeChangeListener(biggerStyleProvider);
@@ -6346,7 +6379,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return biggerStyleProvider;
     }
 
-    public static TextStyleProvider getTimeTextStyleProvider () {
+    public static TextStyleProvider getTimeTextStyleProvider() {
         if (timeProvider == null) {
             timeProvider = new TextStyleProvider(Fonts.newRobotoStorage()).setTextSize(11f);
         }
@@ -6379,7 +6412,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
     // protected static int xCaptionTouchOffset, xCaptionAddition;
 
-    public static void reset () {
+    public static void reset() {
         initialized = false;
     /*initSizes();
     if (mTimeBubble != null)
@@ -6401,7 +6434,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     private static final float BUBBLE_AVATAR_RADIUS = 18f;
     private static final float AVATAR_RADIUS = 20.5f;
 
-    private static void initSizes () {
+    private static void initSizes() {
         xTextSize = Screen.dp(15f);
         xHeaderPadding = Screen.dp(4.5f);
         xDatePadding = Screen.dp(40f);
@@ -6459,7 +6492,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         // xCaptionAddition = Screen.dp(14f);
     }
 
-    public static int getContentLeft () {
+    public static int getContentLeft() {
         return xContentLeft;
     }
 
@@ -6469,7 +6502,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     private static String shareText, replyText;
     private static boolean initialized;
 
-    private static void initResources () {
+    private static void initResources() {
         Resources res = UI.getResources();
         iBadge = Drawables.get(res, R.drawable.baseline_keyboard_arrow_down_20);
         iQuickReply = Drawables.get(res, R.drawable.baseline_reply_24);
@@ -6477,7 +6510,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         initBubbleResources();
     }
 
-    private static void initTexts () {
+    private static void initTexts() {
         if (mQuickText != null) {
             shareText = Lang.getString(R.string.SwipeShare);
             replyText = Lang.getString(R.string.SwipeReply);
@@ -6486,7 +6519,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    private static boolean isStaticText (int res) {
+    private static boolean isStaticText(int res) {
         switch (res) {
             case R.string.SwipeShare:
             case R.string.SwipeReply:
@@ -6495,13 +6528,13 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return false;
     }
 
-    public static void processLanguageEvent (@Lang.EventType int eventType, int arg1) {
+    public static void processLanguageEvent(@Lang.EventType int eventType, int arg1) {
         if (eventType == Lang.EVENT_PACK_CHANGED || (eventType == Lang.EVENT_STRING_CHANGED && (arg1 == 0 || isStaticText(arg1)))) {
             initTexts();
         }
     }
 
-    private static void init () {
+    private static void init() {
         try {
             initResources();
             initPaints();
@@ -6513,21 +6546,21 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    protected final void addMessageFlags (int flags) {
+    protected final void addMessageFlags(int flags) {
         this.flags |= flags;
     }
 
-    protected final boolean isErrorMessage () {
+    protected final boolean isErrorMessage() {
         return (flags & FLAG_ERROR) != 0;
     }
 
     // Other
 
-    public static TGMessage valueOf (MessagesManager context, TdApi.Message msg, TdApi.Chat chat, @Nullable LongSparseArray<TdApi.ChatAdministrator> chatAdmins) {
+    public static TGMessage valueOf(MessagesManager context, TdApi.Message msg, TdApi.Chat chat, @Nullable LongSparseArray<TdApi.ChatAdministrator> chatAdmins) {
         return valueOf(context, msg, chat, msg.senderId.getConstructor() == TdApi.MessageSenderUser.CONSTRUCTOR && chatAdmins != null ? chatAdmins.get(((TdApi.MessageSenderUser) msg.senderId).userId) : null);
     }
 
-    public static TGMessage valueOf (MessagesManager context, TdApi.Message msg, TdApi.Chat chat, @Nullable TdApi.ChatAdministrator admin) {
+    public static TGMessage valueOf(MessagesManager context, TdApi.Message msg, TdApi.Chat chat, @Nullable TdApi.ChatAdministrator admin) {
         TGMessage parsedMessage = valueOf(context, msg);
         if (chat != null) {
             parsedMessage.setChatData(chat);
@@ -6539,7 +6572,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         return parsedMessage;
     }
 
-    private static void appendRight (StringBuilder b, int res, boolean oldValue, boolean value, boolean needEqual) {
+    private static void appendRight(StringBuilder b, int res, boolean oldValue, boolean value, boolean needEqual) {
         if (oldValue != value) {
             b.append('\n');
             b.append(value ? '+' : '-');
@@ -6553,7 +6586,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    private static void appendRight (StringBuilder b, int res, int doubleRes, String oldValue, String newValue, boolean needEqual) {
+    private static void appendRight(StringBuilder b, int res, int doubleRes, String oldValue, String newValue, boolean needEqual) {
         if (!StringUtils.equalsOrBothEmpty(oldValue, newValue)) {
             b.append('\n');
             if (StringUtils.isEmpty(oldValue)) {
@@ -6568,7 +6601,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    private static TGMessage valueOf (MessagesManager context, TdApi.Message msg) {
+    private static TGMessage valueOf(MessagesManager context, TdApi.Message msg) {
         TdApi.MessageContent content = msg.content;
         final Tdlib tdlib = context.controller().tdlib();
         try {
@@ -6635,7 +6668,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
                                     text = new TdApi.FormattedText("", null);
                                 } else {
                                     String link = TD.getLink(e.newUsername);
-                                    text = new TdApi.FormattedText(link, new TdApi.TextEntity[] {new TdApi.TextEntity(0, link.length(), new TdApi.TextEntityTypeUrl())});
+                                    text = new TdApi.FormattedText(link, new TdApi.TextEntity[]{new TdApi.TextEntity(0, link.length(), new TdApi.TextEntityTypeUrl())});
                                 }
 
                                 TGMessageText parsedMessage = new TGMessageText(context, msg, text);
@@ -7240,7 +7273,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
     }
 
-    public static TGMessage valueOfError (MessagesManager context, TdApi.Message msg, Throwable error) {
+    public static TGMessage valueOfError(MessagesManager context, TdApi.Message msg, Throwable error) {
         String text = Lang.getString(R.string.FailureMessageText);
 
         TdApi.Object entitiesObject = Client.execute(new TdApi.GetTextEntities(text));
@@ -7257,7 +7290,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
             newEntities[entities.length] = logEntity;
             entities = newEntities;
         } else {
-            entities = new TdApi.TextEntity[] {logEntity};
+            entities = new TdApi.TextEntity[]{logEntity};
         }
 
 
@@ -7299,12 +7332,12 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     private static final class HotHandler extends Handler {
         public static final int MSG_HOT_CHECK = 0;
 
-        public HotHandler () {
+        public HotHandler() {
             super(Looper.getMainLooper());
         }
 
         @Override
-        public void handleMessage (Message msg) {
+        public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_HOT_CHECK: {
                     ((TGMessage) msg.obj).checkHotTimer();
@@ -7316,7 +7349,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
     // Bubbles
 
-    public final boolean useBubbles () {
+    public final boolean useBubbles() {
         return manager().useBubbles();
     }
   /*public static boolean useBubbles () {

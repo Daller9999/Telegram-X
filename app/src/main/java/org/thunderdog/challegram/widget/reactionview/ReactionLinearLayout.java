@@ -1,4 +1,4 @@
-package org.thunderdog.challegram.widget;
+package org.thunderdog.challegram.widget.reactionview;
 
 import android.content.Context;
 import android.os.Build;
@@ -23,12 +23,14 @@ import java.util.ArrayList;
 
 public class ReactionLinearLayout extends HorizontalScrollView {
 
-    public static final int REACTION_SIZE = 12;
+    public static final int REACTION_SIZE = 15;
 
     private final ArrayList<TdApi.Reaction> totalReactions = new ArrayList<>();
     private Tdlib tdlib;
     private LinearLayout linearLayout;
     private TGMessage message;
+
+    private ReactionCallBack reactionCallBack = null;
 
     public ReactionLinearLayout(Context context, TGMessage message, Tdlib tdlib, String[] availableReactions) {
         super(context);
@@ -44,6 +46,10 @@ public class ReactionLinearLayout extends HorizontalScrollView {
         sortReaction(tdlib.getSupportedReactions(), availableReactions);
         initReactionList();
         setHorizontalScrollBarEnabled(false);
+    }
+
+    public void setReactionCallBack(ReactionCallBack reactionCallBack) {
+        this.reactionCallBack = reactionCallBack;
     }
 
     private void sortReaction(TdApi.Reaction[] reactions, String[] availableReactions) {
@@ -87,6 +93,9 @@ public class ReactionLinearLayout extends HorizontalScrollView {
         tdlib.client().send(messageReaction, object -> {
 
         });
+        if (reactionCallBack != null) {
+            reactionCallBack.onReactionSelected();
+        }
     }
 
     public ReactionLinearLayout(Context context, @Nullable AttributeSet attrs) {

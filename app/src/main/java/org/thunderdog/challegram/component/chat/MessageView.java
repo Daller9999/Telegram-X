@@ -28,10 +28,7 @@ import android.view.ViewParent;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.exoplayer2.util.Log;
-
 import org.drinkless.td.libcore.telegram.TdApi;
-import org.thunderdog.challegram.LoggerHelper;
 import org.thunderdog.challegram.R;
 import org.thunderdog.challegram.config.Config;
 import org.thunderdog.challegram.core.Lang;
@@ -66,7 +63,6 @@ import org.thunderdog.challegram.unsorted.Settings;
 import org.thunderdog.challegram.util.DrawableProvider;
 import org.thunderdog.challegram.util.StringList;
 import org.thunderdog.challegram.v.MessagesRecyclerView;
-import org.thunderdog.challegram.widget.ReactionLinearLayout;
 import org.thunderdog.challegram.widget.SparseDrawableView;
 
 import java.util.List;

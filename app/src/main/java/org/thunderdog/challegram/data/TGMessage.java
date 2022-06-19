@@ -1973,7 +1973,6 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     }
 
     private void drawReaction(Canvas canvas, MessageView view, int startX, int startY) {
-        LoggerHelper.log("invalidate reactions update");
         if (reactions != null && reactions.length > 0) {
             canvas.save();
             canvas.restore();

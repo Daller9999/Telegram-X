@@ -31,6 +31,7 @@ import org.drinkless.td.libcore.telegram.TdApi;
 import org.thunderdog.challegram.BaseActivity;
 import org.thunderdog.challegram.BuildConfig;
 import org.thunderdog.challegram.Log;
+import org.thunderdog.challegram.LoggerHelper;
 import org.thunderdog.challegram.R;
 import org.thunderdog.challegram.config.Config;
 import org.thunderdog.challegram.core.Lang;
@@ -1600,6 +1601,15 @@ public class MessagesManager implements Client.ResultHandler, MessagesSearchMana
         }
     }
 
+    public void updateMessageReaction(long messageId) {
+        int index = adapter.indexOfMessageContainer(messageId);
+        if (index != -1) {
+            TGMessage messageTg = adapter.getMessage(index);
+            messageTg.updateReactions();
+            invalidateViewAt(index);
+        }
+    }
+
     public void updateMessagesDeleted (long chatId, long[] messageIds) {
         controller.removeReply(messageIds);
         controller.onMessagesDeleted(chatId, messageIds);
@@ -2712,6 +2722,7 @@ public class MessagesManager implements Client.ResultHandler, MessagesSearchMana
     @Override
     public void onMessageInteractionInfoChanged (long chatId, long messageId, @Nullable TdApi.MessageInteractionInfo interactionInfo) {
         int sentMessageIndex = indexOfSentMessage(chatId, messageId);
+        updateMessageReaction(messageId);
         if (sentMessageIndex != -1) {
             sentMessages.get(sentMessageIndex).interactionInfo = interactionInfo;
             return;

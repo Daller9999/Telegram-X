@@ -1873,6 +1873,8 @@ public class Tdlib implements TdlibProvider, Settings.SettingsChangeListener {
                     }
                     callBack.runWithData(reactions);
                 }
+            } else {
+                callBack.runWithData(null);
             }
         });
     }

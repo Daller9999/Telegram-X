@@ -53,6 +53,7 @@ import org.drinkmore.Tracer;
 import org.thunderdog.challegram.BaseActivity;
 import org.thunderdog.challegram.BuildConfig;
 import org.thunderdog.challegram.Log;
+import org.thunderdog.challegram.LoggerHelper;
 import org.thunderdog.challegram.R;
 import org.thunderdog.challegram.U;
 import org.thunderdog.challegram.component.chat.MessageView;
@@ -359,10 +360,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         if (isHot() && needHotTimer() && msg.ttlExpiresIn < msg.ttl) {
             startHotTimer(false);
         }
-        tdlib.getMessageReactions(msg, arg -> {
-            reactions = arg;
-            requestLayout();
-        });
+        updateReactions();
     }
 
     private static @NonNull
@@ -1975,6 +1973,7 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     }
 
     private void drawReaction(Canvas canvas, MessageView view, int startX, int startY) {
+        LoggerHelper.log("invalidate reactions update");
         if (reactions != null && reactions.length > 0) {
             canvas.save();
             canvas.restore();
@@ -1993,6 +1992,8 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
                 ImageReceiver imageReceiver = new ImageReceiver(view, Screen.dp(REACTION_SIZE));
                 imageReceiver.requestFile(imageFile);
                 imageReceiver.setBounds(0, 0, Screen.dp(REACTION_SIZE), Screen.dp(REACTION_SIZE));
+                imageReceiver.setRadius(-1);
+                imageReceiver.forceBoundsLayout();
                 imageReceiver.draw(canvas);
             }
             canvas.save();
@@ -2189,6 +2190,14 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
 
     public final void invalidate() {
         currentViews.invalidate();
+    }
+
+    public void updateReactions() {
+        reactions = null;
+        tdlib.getMessageReactions(msg, arg -> {
+            reactions = arg;
+            requestLayout();
+        });
     }
 
     public final void invalidateParentOrSelf(boolean invalidateOverlay) {
@@ -3146,6 +3155,8 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         startX += computeReactionWidth();
         int startY = bottomContentEdge - getBubbleTimePartHeight() - getBubbleTimePartOffsetY() - getBubbleReduceHeight();
 
+        int tempX = startX;
+
         if (backgroundColor != 0) {
             startY -= Screen.dp(4f);
             RectF rectF = Paints.getRectF();
@@ -3185,7 +3196,6 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         isPinned.draw(c, startX, counterY, Gravity.LEFT, 1f, view, iconColorId);
         startX += isPinned.getScaledWidth(Screen.dp(COUNTER_ICON_MARGIN));
 
-        int tempX = startX;
         if (shouldShowEdited()) {
             if (isBeingEdited()) {
                 Drawables.draw(c, Icons.getClockIcon(iconColorId), startX - Screen.dp(6f), startY + Screen.dp(4.5f) - Screen.dp(5f), iconPaint);

@@ -225,6 +225,7 @@ import org.thunderdog.challegram.widget.NoScrollTextView;
 import org.thunderdog.challegram.widget.PopupLayout;
 import org.thunderdog.challegram.widget.ProgressComponentView;
 import org.thunderdog.challegram.widget.RippleRevealView;
+import org.thunderdog.challegram.widget.reactionview.ReactionLinearLayout;
 import org.thunderdog.challegram.widget.rtl.RtlViewPager;
 import org.thunderdog.challegram.widget.SendButton;
 import org.thunderdog.challegram.widget.SeparatorView;
@@ -4873,6 +4874,11 @@ public class MessagesController extends ViewController<MessagesController.Argume
     @Override
     public boolean onOptionItemPressed (View itemView, int id) {
         switch (id) {
+            case ReactionLinearLayout.REACTION_LAYOUT_ID:
+                if (selectedMessage != null) {
+                    manager.updateMessageReaction(selectedMessage.getMessage().id);
+                }
+                return true;
             case R.id.btn_messageApplyLocalization: {
                 if (selectedMessage != null && selectedMessage.getMessage().content.getConstructor() == TdApi.MessageDocument.CONSTRUCTOR) {
                     TdApi.Document document = ((TdApi.MessageDocument) selectedMessage.getMessage().content).document;

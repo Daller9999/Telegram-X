@@ -24,6 +24,7 @@ import java.util.ArrayList;
 public class ReactionLinearLayout extends HorizontalScrollView {
 
     public static final int REACTION_SIZE = 15;
+    public static final int REACTION_LAYOUT_ID = -1233124351;
 
     private final ArrayList<TdApi.Reaction> totalReactions = new ArrayList<>();
     private Tdlib tdlib;

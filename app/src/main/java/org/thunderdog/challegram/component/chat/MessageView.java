@@ -313,18 +313,14 @@ public class MessageView extends SparseDrawableView implements Destroyable, Draw
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int add = 0;
-        if (reactions != null && reactions.length > 0) {
-            add = Screen.dp(ReactionLinearLayout.REACTION_SIZE * reactions.length);
-        }
         if ((flags & FLAG_DISABLE_MEASURE) != 0) {
-            super.onMeasure(widthMeasureSpec + add, heightMeasureSpec);
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         } else {
             int width = ((View) getParent()).getMeasuredWidth();
             if (msg != null) {
-                msg.buildLayout(width + add);
+                msg.buildLayout(width);
             }
-            setMeasuredDimension(widthMeasureSpec + add, MeasureSpec.makeMeasureSpec(getCurrentHeight(), MeasureSpec.EXACTLY));
+            setMeasuredDimension(widthMeasureSpec, MeasureSpec.makeMeasureSpec(getCurrentHeight(), MeasureSpec.EXACTLY));
         }
         checkLegacyComponents(this);
     }

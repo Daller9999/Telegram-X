@@ -92,7 +92,6 @@ import org.thunderdog.challegram.tool.PorterDuffPaint;
 import org.thunderdog.challegram.tool.Screen;
 import org.thunderdog.challegram.tool.Strings;
 import org.thunderdog.challegram.tool.UI;
-import org.thunderdog.challegram.tool.Views;
 import org.thunderdog.challegram.ui.MessagesController;
 import org.thunderdog.challegram.unsorted.Settings;
 import org.thunderdog.challegram.util.text.Counter;
@@ -1975,18 +1974,18 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     private void drawReaction(Canvas canvas, MessageView view, int startX, int startY) {
         if (reactions != null && reactions.length > 0) {
             canvas.save();
-            canvas.restore();
             canvas.translate(
                     startX - Screen.dp(17),
                     startY - Screen.dp(REACTION_SIZE) + Screen.dp(4)
             );
+            int reactionWidthCount = computeReactionCountWidth();
             for (int i = 0; i < reactions.length && i < 3; i++) {
                 TdApi.Reaction reaction = reactions[i];
 
                 TGStickerObj sticker = new TGStickerObj(tdlib, reaction.staticIcon, "", reaction.staticIcon.type);
                 ImageFile imageFile = sticker.getImage();
 
-                canvas.translate(-i * Screen.dp(REACTION_SIZE) - Screen.dp(2), 0);
+                canvas.translate(-i * Screen.dp(REACTION_SIZE) - Screen.dp(2) - reactionWidthCount, 0);
 
                 ImageReceiver imageReceiver = new ImageReceiver(view, Screen.dp(REACTION_SIZE));
                 imageReceiver.requestFile(imageFile);
@@ -1995,10 +1994,11 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
                 imageReceiver.forceBoundsLayout();
                 imageReceiver.draw(canvas);
             }
-            canvas.save();
             canvas.restore();
+            if (isChannel() || TD.isMultiChat(chat)) {
+                canvas.drawText(String.valueOf(reactions.length), startX - reactionWidthCount, startY, getPaintTime());
+            }
         }
-        Views.restore(canvas, 100);
     }
 
 
@@ -3103,12 +3103,35 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
     private static final float COUNTER_ICON_MARGIN = 3f;
     private static final float COUNTER_ADD_MARGIN = 3f;
 
+    private Paint getPaintTime() {
+        boolean isTransparent = !useBubble() || useCircleBubble();
+        boolean isWhite = isTransparent || (drawBubbleTimeOverContent() && !useForward());
+        final int textColor;
+        if (!isWhite) { // Inside bubble
+            textColor = getDecentColor();
+        } else if (isTransparent) { // Partially on the content
+            textColor = getBubbleTimeTextColor();
+        } else { // Media
+            textColor = Theme.getColor(R.id.theme_color_bubble_mediaOverlayText);
+        }
+        return Paints.colorPaint(mTimeBubble(), textColor);
+    }
+
     private int computeReactionWidth() {
         int reactionWidth = 0;
         if (reactions != null && reactions.length > 0) {
-            reactionWidth = Screen.dp(20) * reactions.length + Screen.dp(2) * reactions.length;
+            reactionWidth = Screen.dp(22) * reactions.length;
         }
-        return reactionWidth;
+        return reactionWidth + computeReactionCountWidth();
+    }
+
+    private int computeReactionCountWidth() {
+        int count = 0;
+        if (reactions != null && reactions.length > 0 && (isChannel() || TD.isMultiChat(chat))) {
+            count = (int) U.measureText(String.valueOf(reactions.length), getPaintTime()) + Screen.dp(5);
+        }
+        LoggerHelper.log("reaction width = " + count);
+        return count;
     }
 
     protected void drawBubbleTimePart(Canvas c, MessageView view) {

@@ -3137,7 +3137,13 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
             startY -= Screen.dp(4f);
             RectF rectF = Paints.getRectF();
             int padding = Screen.dp(6f);
-            rectF.set(startX - padding, startY, startX + innerWidth + padding, startY + Screen.dp(21f));
+            int widthReaction = computeReactionWidth() - Screen.dp(2);
+            rectF.set(
+                    startX - padding - widthReaction,
+                    startY,
+                    startX + innerWidth + padding - widthReaction,
+                    startY + Screen.dp(21f)
+            );
             c.drawRoundRect(rectF, Screen.dp(12f), Screen.dp(12f), Paints.fillingPaint(backgroundColor));
             startY -= Screen.dp(1f);
         }
@@ -3165,9 +3171,6 @@ public abstract class TGMessage implements MultipleViewProvider.InvalidateConten
         }
         isPinned.draw(c, startX, counterY, Gravity.LEFT, 1f, view, iconColorId);
         startX += isPinned.getScaledWidth(Screen.dp(COUNTER_ICON_MARGIN));
-//        if (reactions != null && reactions.length > 0) {
-//            startX += Screen.dp(10) * reactions.length;
-//        }
 
         if (shouldShowEdited()) {
             if (isBeingEdited()) {
